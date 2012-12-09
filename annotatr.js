@@ -1,95 +1,222 @@
 (function ($) {
     'use strict';
 
-    var Annotatr = function ($element, options) {
-        var self = this;
+    function subtract(v, w) {
+        return {
+            x: v.x - w.x,
+            y: v.y - w.y
+        };
+    }
 
-        this.$element = $element;
-        this.data = options.data;
+    function sqr(x) { return x * x; }
+    function distanceSqr(v, w) { return sqr(v.x - w.x) + sqr(v.y - w.y); }
+    function distance(v, w) { return Math.sqrt(distanceSqr(v, w)); }
 
-        $element.css('position', 'relative');
-        $element.css('background-color', '#ffffff');
+    function distanceToLine(p, v, w) {
+        /* See http://stackoverflow.com/questions/849211 */
+        var l2 = distanceSqr(v, w);
+        if (l2 === 0) {
+            return distance(p, v);
+        }
+        var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+        if (t < 0) {
+            return distance(p, v);
+        } else if (t > 1) {
+            return distance(p, w);
+        } else {
+            return distance(p, {
+                x: v.x + t * (w.x - v.x),
+                y: v.y + t * (w.y - v.y)
+            });
+        }
+    }
 
-        $element.mousedown(function (e) {
-            var parentOffset = $(this).offset();
-            var relX = e.pageX - parentOffset.left;
-            var relY = e.pageY - parentOffset.top;
-            self.selected = self.getHit(relX, relY);
-            self.offsetX = relX - self.selected.x;
-            self.offsetY = relY - self.selected.y;
-        });
-        $element.mouseup(function () {
-            self.selected = null;
-        });
-        $element.mousemove(function (e) {
-            if (self.selected) {
-                var parentOffset = $(this).offset();
-                var relX = e.pageX - parentOffset.left;
-                var relY = e.pageY - parentOffset.top;
-                self.selected.x = relX - self.offsetX;
-                self.selected.y = relY - self.offsetY;
-                self.draw();
-            }
-        });
+    var Image = function ($container, data) {
+        this.$container = $container;
+        this.data = data;
+
+        this.$element = $('<img>');
+        this.$element.css('position', 'absolute');
+        this.$element.css('left', data.x + 'px');
+        this.$element.css('top', data.y + 'px');
+        this.$element.css('width', data.width + 'px');
+        this.$element.css('height', data.height + 'px');
+        this.$element.attr('src', data.src);
+        $container.append(this.$element);
+    };
+
+    Image.prototype = {
+        isHit: function (p) {
+            return p.x >= this.data.x &&
+                p.x <= this.data.x + this.data.width &&
+                p.y >= this.data.y &&
+                p.y <= this.data.y + this.data.height;
+        },
+        getPos: function () {
+            return { x: this.data.x, y: this.data.y };
+        },
+        setPos: function (p) {
+            this.data.x = p.x;
+            this.data.y = p.y;
+            this.$element.css('left', p.x + 'px');
+            this.$element.css('top', p.y + 'px');
+        }
+    };
+
+    var Line = function ($container, data) {
+        this.$container = $container;
+        this.data = data;
+
+        this.$element = $('<canvas>');
+        this.$element.css('position', 'absolute');
+        this.$element.css('left', Math.min(data.x1, data.x2) + 'px');
+        this.$element.css('top', Math.min(data.y1, data.y2) + 'px');
+        this.$element.attr('width', Math.abs(data.x1 - data.x2));
+        this.$element.attr('height', Math.abs(data.y1 - data.y2));
+        $container.append(this.$element);
+
+        this.canvas = this.$element.get(0);
+        this.context = this.canvas.getContext('2d');
 
         this.draw();
     };
 
-    Annotatr.prototype = {
-        getHit: function (x, y) {
-            for (var i = this.data.length - 1; i >= 0; i--) {
-                var item = this.data[i];
+    Line.prototype = {
+        toCanvasCoord: function (p) {
+            return {
+                x: p.x - Math.min(this.data.x1, this.data.x2),
+                y: p.y - Math.min(this.data.y1, this.data.y2)
+            };
+        },
+        draw: function () {
+            var p1 = this.toCanvasCoord({ x: this.data.x1, y: this.data.y1 });
+            var p2 = this.toCanvasCoord({ x: this.data.x2, y: this.data.y2 });
 
-                if (x >= item.x &&
-                    x <= item.x + item.width &&
-                    y >= item.y &&
-                    y <= item.y + item.height) {
-                    return item;
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.context.fillStyle = '#000000';
+            this.context.beginPath();
+            this.context.moveTo(p1.x, p1.y);
+            this.context.lineTo(p2.x, p2.y);
+            this.context.lineWidth = 2;
+            this.context.stroke();
+        },
+        isHit: function (p) {
+            var distance = distanceToLine(p,
+                { x: this.data.x1, y: this.data.y1 },
+                { x: this.data.x2, y: this.data.y2 });
+            return distance <= 5;
+        },
+        getPos: function () {
+            return {
+                x: Math.min(this.data.x1, this.data.x2),
+                y: Math.min(this.data.y1, this.data.y2)
+            };
+        },
+        setPos: function (p) {
+            var delta = this.toCanvasCoord(p);
+            this.data.x1 += delta.x;
+            this.data.y1 += delta.y;
+            this.data.x2 += delta.x;
+            this.data.y2 += delta.y;
+            this.$element.css('left', Math.min(this.data.x1, this.data.x2) + 'px');
+            this.$element.css('top', Math.min(this.data.y1, this.data.y2) + 'px');
+        }
+    };
+
+    var Text = function ($container, data) {
+        this.$container = $container;
+        this.data = data;
+
+        this.$element = $('<div>');
+        this.$element.css('position', 'absolute');
+        this.$element.css('left', data.x + 'px');
+        this.$element.css('top', data.y + 'px');
+        this.$element.css('width', data.width + 'px');
+        this.$element.css('height', data.height + 'px');
+        this.$element.text(data.text);
+        this.$container.append(this.$element);
+    };
+
+    Text.prototype = {
+        isHit: function (p) {
+            return p.x >= this.data.x &&
+                p.x <= this.data.x + this.data.width &&
+                p.y >= this.data.y &&
+                p.y <= this.data.y + this.data.height;
+        },
+        getPos: function () {
+            return { x: this.data.x, y: this.data.y };
+        },
+        setPos: function (p) {
+            this.data.x = p.x;
+            this.data.y = p.y;
+            this.$element.css('left', p.x + 'px');
+            this.$element.css('top', p.y + 'px');
+        }
+    };
+
+    var Annotatr = function ($container, options) {
+        var self = this;
+
+        self.$container = $container;
+        self.data = options.data;
+
+        $container.css('position', 'relative');
+        $container.css('background-color', '#ffffff');
+
+        self.draw();
+
+        $container.mousedown(function (e) {
+            e.preventDefault();
+            var p = self.fromPagePoint({ x: e.pageX, y: e.pageY });
+            self.selected = self.getHit(p);
+            if (self.selected) {
+                self.selectedOffset = subtract(p, self.selected.getPos());
+            }
+        });
+        $container.mouseup(function (e) {
+            e.preventDefault();
+            self.selected = null;
+        });
+        $container.mousemove(function (e) {
+            e.preventDefault();
+            if (self.selected) {
+                var p = self.fromPagePoint({ x: e.pageX, y: e.pageY });
+                self.selected.setPos(subtract(p, self.selectedOffset));
+            }
+        });
+    };
+
+    Annotatr.prototype = {
+        fromPagePoint: function (pagePoint) {
+            var offset = this.$container.offset();
+            return {
+                x: pagePoint.x - offset.left,
+                y: pagePoint.y - offset.top
+            };
+        },
+        getHit: function (p) {
+            for (var i = this.shapes.length - 1; i >= 0; i--) {
+                var shape = this.shapes[i];
+                if (shape.isHit(p)) {
+                    return shape;
                 }
             }
             return null;
         },
-
         draw: function () {
-            this.$element.empty();
+            this.$container.empty();
+            this.shapes = [];
 
             for (var i = 0; i < this.data.length; i++) {
                 var item = this.data[i];
 
                 if (item.type === 'image') {
-                    var $img = $('<img>');
-                    $img.css('position', 'absolute');
-                    $img.css('left', item.x + 'px');
-                    $img.css('top', item.y + 'px');
-                    $img.css('width', item.width + 'px');
-                    $img.css('height', item.height + 'px');
-                    $img.attr('src', item.src);
-                    this.$element.append($img);
+                    this.shapes.push(new Image(this.$container, item));
                 } else if (item.type === 'line') {
-                    var $canvas = $('<canvas>');
-                    $canvas.css('position', 'absolute');
-                    $canvas.css('left', item.x + 'px');
-                    $canvas.css('top', item.y + 'px');
-                    $canvas.css('width', item.width + 'px');
-                    $canvas.css('height', item.height + 'px');
-                    this.$element.append($canvas);
-
-                    var context = $canvas.get(0).getContext('2d');
-                    context.fillStyle = '#000000';
-                    context.beginPath();
-                    context.moveTo(0, 0);
-                    context.lineTo(item.width, item.height);
-                    context.lineWidth = 2;
-                    context.stroke();
+                    this.shapes.push(new Line(this.$container, item));
                 } else if (item.type === 'text') {
-                    var $div = $('<div>');
-                    $div.css('position', 'absolute');
-                    $div.css('left', item.x + 'px');
-                    $div.css('top', item.y + 'px');
-                    $div.css('width', item.width + 'px');
-                    $div.css('height', item.height + 'px');
-                    $div.text(item.text);
-                    this.$element.append($div);
+                    this.shapes.push(new Text(this.$container, item));
                 }
             }
         }
