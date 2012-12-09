@@ -1,0 +1,4 @@
+annotatr
+========
+
+JavaScript image annotator
