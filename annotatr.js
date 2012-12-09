@@ -2,16 +2,54 @@
     'use strict';
 
     var Annotatr = function ($element, options) {
+        var self = this;
+
         this.$element = $element;
         this.data = options.data;
 
-        this.$element.css('position', 'relative');
-        this.$element.css('background-color', '#ffffff');
+        $element.css('position', 'relative');
+        $element.css('background-color', '#ffffff');
+
+        $element.mousedown(function (e) {
+            var parentOffset = $(this).offset();
+            var relX = e.pageX - parentOffset.left;
+            var relY = e.pageY - parentOffset.top;
+            self.selected = self.getHit(relX, relY);
+            self.offsetX = relX - self.selected.x;
+            self.offsetY = relY - self.selected.y;
+        });
+        $element.mouseup(function () {
+            self.selected = null;
+        });
+        $element.mousemove(function (e) {
+            if (self.selected) {
+                var parentOffset = $(this).offset();
+                var relX = e.pageX - parentOffset.left;
+                var relY = e.pageY - parentOffset.top;
+                self.selected.x = relX - self.offsetX;
+                self.selected.y = relY - self.offsetY;
+                self.draw();
+            }
+        });
 
         this.draw();
     };
 
     Annotatr.prototype = {
+        getHit: function (x, y) {
+            for (var i = this.data.length - 1; i >= 0; i--) {
+                var item = this.data[i];
+
+                if (x >= item.x &&
+                    x <= item.x + item.width &&
+                    y >= item.y &&
+                    y <= item.y + item.height) {
+                    return item;
+                }
+            }
+            return null;
+        },
+
         draw: function () {
             this.$element.empty();
 
@@ -19,21 +57,28 @@
                 var item = this.data[i];
 
                 if (item.type === 'image') {
-                    this.$element.append('<img src="' + item.src + '" style="position: absolute">');
+                    var $img = $('<img>');
+                    $img.css('position', 'absolute');
+                    $img.css('left', item.x + 'px');
+                    $img.css('top', item.y + 'px');
+                    $img.css('width', item.width + 'px');
+                    $img.css('height', item.height + 'px');
+                    $img.attr('src', item.src);
+                    this.$element.append($img);
                 } else if (item.type === 'line') {
                     var $canvas = $('<canvas>');
                     $canvas.css('position', 'absolute');
-                    $canvas.css('left', item.x1 + 'px');
-                    $canvas.css('top', item.y1 + 'px');
-                    $canvas.css('width', (item.x2 - item.x1) + 'px');
-                    $canvas.css('height', (item.y2 - item.y1) + 'px');
+                    $canvas.css('left', item.x + 'px');
+                    $canvas.css('top', item.y + 'px');
+                    $canvas.css('width', item.width + 'px');
+                    $canvas.css('height', item.height + 'px');
                     this.$element.append($canvas);
 
                     var context = $canvas.get(0).getContext('2d');
                     context.fillStyle = '#000000';
                     context.beginPath();
                     context.moveTo(0, 0);
-                    context.lineTo(item.x2 - item.x1, item.y2 - item.y1);
+                    context.lineTo(item.width, item.height);
                     context.lineWidth = 2;
                     context.stroke();
                 } else if (item.type === 'text') {
