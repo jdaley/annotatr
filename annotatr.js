@@ -60,6 +60,13 @@
             this.data.y = p.y;
             this.$element.css('left', p.x + 'px');
             this.$element.css('top', p.y + 'px');
+        },
+        setSelected: function (selected) {
+            if (selected) {
+                this.$element.css('border', 'solid 1px blue');
+            } else {
+                this.$element.css('border', 'none');
+            }
         }
     };
 
@@ -120,6 +127,13 @@
             this.data.y2 += delta.y;
             this.$element.css('left', Math.min(this.data.x1, this.data.x2) + 'px');
             this.$element.css('top', Math.min(this.data.y1, this.data.y2) + 'px');
+        },
+        setSelected: function (selected) {
+            if (selected) {
+                this.$element.css('border', 'solid 1px blue');
+            } else {
+                this.$element.css('border', 'none');
+            }
         }
     };
 
@@ -152,6 +166,29 @@
             this.data.y = p.y;
             this.$element.css('left', p.x + 'px');
             this.$element.css('top', p.y + 'px');
+        },
+        setSelected: function (selected) {
+            if (selected) {
+                this.$element.css('border', 'solid 1px blue');
+            } else {
+                this.$element.css('border', 'none');
+            }
+        }
+    };
+
+    var MouseMoveOperation = function (annotatr, p) {
+        this.annotatr = annotatr;
+        this.originalPos = annotatr.selected.getPos();
+        this.offset = subtract(p, annotatr.selected.getPos());
+    };
+
+    MouseMoveOperation.prototype = {
+        move: function (p) {
+            this.annotatr.selected.setPos(subtract(p, this.offset));
+        },
+        up: function () { },
+        cancel: function () {
+            this.annotatr.selected.setPos(this.originalPos);
         }
     };
 
@@ -168,21 +205,32 @@
 
         $container.mousedown(function (e) {
             e.preventDefault();
+            if (self.mouseOperation) {
+                return;
+            }
             var p = self.fromPagePoint({ x: e.pageX, y: e.pageY });
-            self.selected = self.getHit(p);
-            if (self.selected) {
-                self.selectedOffset = subtract(p, self.selected.getPos());
+            var hit = self.getHit(p);
+            if (hit === null) {
+                self.selectNone();
+            } else if (hit === self.selected) {
+                self.mouseOperation = new MouseMoveOperation(self, p);
+            } else {
+                self.select(hit);
+                self.mouseOperation = new MouseMoveOperation(self, p);
             }
         });
         $container.mouseup(function (e) {
             e.preventDefault();
-            self.selected = null;
+            if (self.mouseOperation) {
+                self.mouseOperation.up();
+                self.mouseOperation = null;
+            }
         });
         $container.mousemove(function (e) {
             e.preventDefault();
-            if (self.selected) {
+            if (self.mouseOperation) {
                 var p = self.fromPagePoint({ x: e.pageX, y: e.pageY });
-                self.selected.setPos(subtract(p, self.selectedOffset));
+                self.mouseOperation.move(p);
             }
         });
     };
@@ -218,6 +266,19 @@
                 } else if (item.type === 'text') {
                     this.shapes.push(new Text(this.$container, item));
                 }
+            }
+        },
+        select: function (shape) {
+            if (shape !== this.selected) {
+                this.selectNone();
+                this.selected = shape;
+                shape.setSelected(true);
+            }
+        },
+        selectNone: function () {
+            if (this.selected) {
+                this.selected.setSelected(false);
+                this.selected = null;
             }
         }
     };
