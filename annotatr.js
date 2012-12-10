@@ -37,20 +37,32 @@
 
         this.$element = $('<img>');
         this.$element.css('position', 'absolute');
-        this.$element.css('left', data.x + 'px');
-        this.$element.css('top', data.y + 'px');
-        this.$element.css('width', data.width + 'px');
-        this.$element.css('height', data.height + 'px');
+        this.draw();
         this.$element.attr('src', data.src);
         $container.append(this.$element);
     };
 
     Image.prototype = {
+        draw: function () {
+            this.$element.css('left', this.data.x + 'px');
+            this.$element.css('top', this.data.y + 'px');
+            this.$element.css('width', this.data.width + 'px');
+            this.$element.css('height', this.data.height + 'px');
+        },
         isHit: function (p) {
             return p.x >= this.data.x &&
                 p.x <= this.data.x + this.data.width &&
                 p.y >= this.data.y &&
                 p.y <= this.data.y + this.data.height;
+        },
+        getHitPoint: function (p) {
+            var points = this.getPoints();
+            for (var i = 0; i < points.length; i++) {
+                if (distance(p, points[i]) <= 10) {
+                    return i;
+                }
+            }
+            return null;
         },
         getPos: function () {
             return { x: this.data.x, y: this.data.y };
@@ -58,8 +70,36 @@
         setPos: function (p) {
             this.data.x = p.x;
             this.data.y = p.y;
-            this.$element.css('left', p.x + 'px');
-            this.$element.css('top', p.y + 'px');
+            this.draw();
+        },
+        getPoints: function () {
+            return [
+                { x: this.data.x, y: this.data.y },
+                { x: this.data.x + this.data.width, y: this.data.y },
+                { x: this.data.x, y: this.data.y + this.data.height },
+                { x: this.data.x + this.data.width, y: this.data.y + this.data.height }
+            ];
+        },
+        setPoint: function (i, p) {
+            var delta = subtract(p, this.getPoints()[i]);
+            if (i === 0) { // top-left
+                this.data.x += delta.x;
+                this.data.y += delta.y;
+                this.data.width -= delta.x;
+                this.data.height -= delta.y;
+            } else if (i === 1) { // top-right
+                this.data.y += delta.y;
+                this.data.width += delta.x;
+                this.data.height -= delta.y;
+            } else if (i === 2) { // bottom-left
+                this.data.x += delta.x;
+                this.data.width -= delta.x;
+                this.data.height += delta.y;
+            } else if (i === 3) { // bottom-right
+                this.data.width += delta.x;
+                this.data.height += delta.y;
+            }
+            this.draw();
         },
         setSelected: function (selected) {
             if (selected) {
@@ -76,10 +116,6 @@
 
         this.$element = $('<canvas>');
         this.$element.css('position', 'absolute');
-        this.$element.css('left', Math.min(data.x1, data.x2) + 'px');
-        this.$element.css('top', Math.min(data.y1, data.y2) + 'px');
-        this.$element.attr('width', Math.abs(data.x1 - data.x2));
-        this.$element.attr('height', Math.abs(data.y1 - data.y2));
         $container.append(this.$element);
 
         this.canvas = this.$element.get(0);
@@ -96,15 +132,25 @@
             };
         },
         draw: function () {
+            this.$element.css('left', Math.min(this.data.x1, this.data.x2) + 'px');
+            this.$element.css('top', Math.min(this.data.y1, this.data.y2) + 'px');
+            this.$element.attr('width', Math.abs(this.data.x1 - this.data.x2));
+            this.$element.attr('height', Math.abs(this.data.y1 - this.data.y2));
+
             var p1 = this.toCanvasCoord({ x: this.data.x1, y: this.data.y1 });
             var p2 = this.toCanvasCoord({ x: this.data.x2, y: this.data.y2 });
 
             this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.context.fillStyle = '#000000';
             this.context.beginPath();
             this.context.moveTo(p1.x, p1.y);
             this.context.lineTo(p2.x, p2.y);
-            this.context.lineWidth = 2;
+            if (this.selected) {
+                this.context.strokeStyle = 'blue';
+                this.context.lineWidth = 3;
+            } else {
+                this.context.strokeStyle = '#000000';
+                this.context.lineWidth = 2;
+            }
             this.context.stroke();
         },
         isHit: function (p) {
@@ -112,6 +158,15 @@
                 { x: this.data.x1, y: this.data.y1 },
                 { x: this.data.x2, y: this.data.y2 });
             return distance <= 5;
+        },
+        getHitPoint: function (p) {
+            var points = this.getPoints();
+            for (var i = 0; i < points.length; i++) {
+                if (distance(p, points[i]) <= 10) {
+                    return i;
+                }
+            }
+            return null;
         },
         getPos: function () {
             return {
@@ -128,12 +183,25 @@
             this.$element.css('left', Math.min(this.data.x1, this.data.x2) + 'px');
             this.$element.css('top', Math.min(this.data.y1, this.data.y2) + 'px');
         },
-        setSelected: function (selected) {
-            if (selected) {
-                this.$element.css('border', 'solid 1px blue');
-            } else {
-                this.$element.css('border', 'none');
+        getPoints: function () {
+            return [
+                { x: this.data.x1, y: this.data.y1 },
+                { x: this.data.x2, y: this.data.y2 }
+            ];
+        },
+        setPoint: function (i, p) {
+            if (i === 0) {
+                this.data.x1 = p.x;
+                this.data.y1 = p.y;
+            } else if (i === 1) {
+                this.data.x2 = p.x;
+                this.data.y2 = p.y;
             }
+            this.draw();
+        },
+        setSelected: function (selected) {
+            this.selected = selected;
+            this.draw();
         }
     };
 
@@ -143,20 +211,32 @@
 
         this.$element = $('<div>');
         this.$element.css('position', 'absolute');
-        this.$element.css('left', data.x + 'px');
-        this.$element.css('top', data.y + 'px');
-        this.$element.css('width', data.width + 'px');
-        this.$element.css('height', data.height + 'px');
+        this.draw();
         this.$element.text(data.text);
         this.$container.append(this.$element);
     };
 
     Text.prototype = {
+        draw: function () {
+            this.$element.css('left', this.data.x + 'px');
+            this.$element.css('top', this.data.y + 'px');
+            this.$element.css('width', this.data.width + 'px');
+            this.$element.css('height', this.data.height + 'px');
+        },
         isHit: function (p) {
             return p.x >= this.data.x &&
                 p.x <= this.data.x + this.data.width &&
                 p.y >= this.data.y &&
                 p.y <= this.data.y + this.data.height;
+        },
+        getHitPoint: function (p) {
+            var points = this.getPoints();
+            for (var i = 0; i < points.length; i++) {
+                if (distance(p, points[i]) <= 10) {
+                    return i;
+                }
+            }
+            return null;
         },
         getPos: function () {
             return { x: this.data.x, y: this.data.y };
@@ -166,6 +246,35 @@
             this.data.y = p.y;
             this.$element.css('left', p.x + 'px');
             this.$element.css('top', p.y + 'px');
+        },
+        getPoints: function () {
+            return [
+                { x: this.data.x, y: this.data.y },
+                { x: this.data.x + this.data.width, y: this.data.y },
+                { x: this.data.x, y: this.data.y + this.data.height },
+                { x: this.data.x + this.data.width, y: this.data.y + this.data.height }
+            ];
+        },
+        setPoint: function (i, p) {
+            var delta = subtract(p, this.getPoints()[i]);
+            if (i === 0) { // top-left
+                this.data.x += delta.x;
+                this.data.y += delta.y;
+                this.data.width -= delta.x;
+                this.data.height -= delta.y;
+            } else if (i === 1) { // top-right
+                this.data.y += delta.y;
+                this.data.width += delta.x;
+                this.data.height -= delta.y;
+            } else if (i === 2) { // bottom-left
+                this.data.x += delta.x;
+                this.data.width -= delta.x;
+                this.data.height += delta.y;
+            } else if (i === 3) { // bottom-right
+                this.data.width += delta.x;
+                this.data.height += delta.y;
+            }
+            this.draw();
         },
         setSelected: function (selected) {
             if (selected) {
@@ -179,7 +288,7 @@
     var MouseMoveOperation = function (annotatr, p) {
         this.annotatr = annotatr;
         this.originalPos = annotatr.selected.getPos();
-        this.offset = subtract(p, annotatr.selected.getPos());
+        this.offset = subtract(p, this.originalPos);
     };
 
     MouseMoveOperation.prototype = {
@@ -189,6 +298,23 @@
         up: function () { },
         cancel: function () {
             this.annotatr.selected.setPos(this.originalPos);
+        }
+    };
+
+    var MouseResizeOperation = function (annotatr, index, p) {
+        this.annotatr = annotatr;
+        this.index = index;
+        this.originalPoint = annotatr.selected.getPoints()[index];
+        this.offset = subtract(p, this.originalPoint);
+    };
+
+    MouseResizeOperation.prototype = {
+        move: function (p) {
+            this.annotatr.selected.setPoint(this.index, subtract(p, this.offset));
+        },
+        up: function () { },
+        cancel: function () {
+            this.annotatr.selected.setPoint(this.index, this.originalPoint);
         }
     };
 
@@ -213,7 +339,12 @@
             if (hit === null) {
                 self.selectNone();
             } else if (hit === self.selected) {
-                self.mouseOperation = new MouseMoveOperation(self, p);
+                var hitPoint = hit.getHitPoint(p);
+                if (hitPoint === null) {
+                    self.mouseOperation = new MouseMoveOperation(self, p);
+                } else {
+                    self.mouseOperation = new MouseResizeOperation(self, hitPoint, p);
+                }
             } else {
                 self.select(hit);
                 self.mouseOperation = new MouseMoveOperation(self, p);
