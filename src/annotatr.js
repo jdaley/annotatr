@@ -43,6 +43,7 @@ annotatr = (function ($) {
         self.data = options.data;
 
         $container.css('position', 'relative');
+        $container.css('overflow', 'hidden');
         $container.css('background-color', '#ffffff');
 
         self.draw();
