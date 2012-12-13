@@ -49,12 +49,21 @@ annotatr = (function ($) {
         self.draw();
 
         $container.mousedown(function (e) {
-            e.preventDefault();
             if (self.mouseOperation) {
+                e.preventDefault();
                 return;
             }
             var p = self.fromPagePoint({ x: e.pageX, y: e.pageY });
             var hit = self.getHit(p);
+            if (self.editable) {
+                if (self.editable === hit) {
+                    return;
+                } else {
+                    self.editable.stopEditing();
+                    self.editable = null;
+                }
+            }
+            e.preventDefault();
             if (hit === null) {
                 self.selectNone();
             } else if (hit === self.selected) {
@@ -81,6 +90,15 @@ annotatr = (function ($) {
             if (self.mouseOperation) {
                 var p = self.fromPagePoint({ x: e.pageX, y: e.pageY });
                 self.mouseOperation.move(p);
+            }
+        });
+        $container.dblclick(function (e) {
+            e.preventDefault();
+            var p = self.fromPagePoint({ x: e.pageX, y: e.pageY });
+            var hit = self.getHit(p);
+            if (hit !== null && hit.startEditing) {
+                self.editable = hit;
+                hit.startEditing();
             }
         });
     }

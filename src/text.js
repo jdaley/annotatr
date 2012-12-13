@@ -78,6 +78,14 @@ annotatr.shapes['text'] = (function (utils, $) {
             } else {
                 this.$element.css('border', 'none');
             }
+        },
+        startEditing: function () {
+            this.$element.attr('contentEditable', 'true');
+            this.$element.focus();
+        },
+        stopEditing: function () {
+            this.$element.attr('contentEditable', 'false');
+            this.$element.blur();
         }
     };
 
