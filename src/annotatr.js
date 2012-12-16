@@ -48,6 +48,10 @@ annotatr = (function ($) {
 
         self.draw();
 
+        if (options.$toolbar) {
+            self.addToolbar(options.$toolbar);
+        }
+
         $container.mousedown(function (e) {
             if (self.mouseOperation) {
                 e.preventDefault();
@@ -64,7 +68,31 @@ annotatr = (function ($) {
                 }
             }
             e.preventDefault();
-            if (hit === null) {
+            if (self.mode) {
+                var newShape;
+                if (self.mode === 'line') {
+                    newShape = new annotatr.shapes['line'](self.$container, {
+                        type: 'line',
+                        x1: p.x,
+                        y1: p.y,
+                        x2: p.x,
+                        y2: p.y
+                    });
+                } else {
+                    newShape = new annotatr.shapes['text'](self.$container, {
+                        type: 'text',
+                        text: '',
+                        x: p.x,
+                        y: p.y,
+                        width: 0,
+                        height: 0
+                    });
+                }
+                self.shapes.push(newShape);
+                self.mode = null;
+                self.select(newShape);
+                self.mouseOperation = new MouseResizeOperation(self, newShape.getPoints().length - 1, p);
+            } else if (hit === null) {
                 self.selectNone();
             } else if (hit === self.selected) {
                 var hitPoint = hit.getHitPoint(p);
@@ -141,6 +169,16 @@ annotatr = (function ($) {
                 this.selected.setSelected(false);
                 this.selected = null;
             }
+        },
+        addToolbar: function ($toolbar) {
+            var self = this;
+            $('[data-annotatr]', $toolbar).each(function () {
+                var $this = $(this);
+                var mode = $this.attr('data-annotatr');
+                $this.click(function () {
+                    self.mode = mode;
+                });
+            });
         }
     };
 

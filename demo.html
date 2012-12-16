@@ -5,7 +5,12 @@
     <link href="annotatr.css" type="text/css" rel="stylesheet" />
 </head>
 <body style="background-color: lightgray">
-    <div id="myAnnotator" style="width: 800px; height: 600px"></div>
+    <div id="demo-annotator-toolbar">
+        <button data-annotatr="line">Line</button>
+        <button data-annotatr="text">Text</button>
+    </div>
+
+    <div id="demo-annotator" style="width: 800px; height: 600px"></div>
 
     <script src="jquery-1.8.3.js"></script>
     <script src="src/annotatr.js"></script>
@@ -42,8 +47,9 @@
                 }
             ];
 
-            $('#myAnnotator').annotatr({
-                data: data
+            $('#demo-annotator').annotatr({
+                data: data,
+                $toolbar: $('#demo-annotator-toolbar')
             });
         });
     </script>
