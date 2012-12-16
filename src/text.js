@@ -7,7 +7,10 @@ annotatr.shapes['text'] = (function (utils, $) {
 
         this.$element = $('<div>');
         this.$element.css('position', 'absolute');
+        this.$element.css('overflow', 'hidden');
+        this.$element.css('background-color', '#ffffff');
         this.draw();
+        this.setSelected(false);
         this.$element.text(data.text);
         this.$container.append(this.$element);
     }
@@ -76,7 +79,7 @@ annotatr.shapes['text'] = (function (utils, $) {
             if (selected) {
                 this.$element.css('border', 'solid 1px blue');
             } else {
-                this.$element.css('border', 'none');
+                this.$element.css('border', 'solid 1px black');
             }
         },
         startEditing: function () {
