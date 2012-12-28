@@ -79,8 +79,8 @@ annotatr = (function ($) {
                         y2: p.y
                     });
                 } else {
-                    newShape = new annotatr.shapes['text'](self.$container, {
-                        type: 'text',
+                    newShape = new annotatr.shapes[self.mode](self.$container, {
+                        type: self.mode,
                         text: '',
                         x: p.x,
                         y: p.y,
