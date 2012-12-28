@@ -1,21 +1,31 @@
-annotatr.shapes['line'] = (function (utils, $) {
+annotatr.shapes['line'] = (function (utils, $, Raphael) {
     'use strict';
 
     function Line($container, data) {
         this.$container = $container;
         this.data = data;
 
-        this.$element = $('<canvas>');
+        this.$element = $('<div>');
         this.$element.css('position', 'absolute');
         $container.append(this.$element);
 
-        this.canvas = this.$element.get(0);
-        this.context = this.canvas.getContext('2d');
+        this.paper = new Raphael(this.$element.get(0),
+            Math.abs(this.data.x1 - this.data.x2),
+            Math.abs(this.data.y1 - this.data.y2));
+
+        this.line = this.paper.path(this.getSvgPath());
 
         this.draw();
     }
 
     Line.prototype = {
+        getSvgPath: function () {
+            var p1 = this.toCanvasCoord({ x: this.data.x1, y: this.data.y1 });
+            var p2 = this.toCanvasCoord({ x: this.data.x2, y: this.data.y2 });
+
+            return 'M' + p1.x + ',' + p1.y +
+                'L' + p2.x + ',' + p2.y;
+        },
         toCanvasCoord: function (p) {
             return {
                 x: p.x - Math.min(this.data.x1, this.data.x2),
@@ -25,24 +35,20 @@ annotatr.shapes['line'] = (function (utils, $) {
         draw: function () {
             this.$element.css('left', Math.min(this.data.x1, this.data.x2) + 'px');
             this.$element.css('top', Math.min(this.data.y1, this.data.y2) + 'px');
-            this.$element.attr('width', Math.abs(this.data.x1 - this.data.x2));
-            this.$element.attr('height', Math.abs(this.data.y1 - this.data.y2));
 
-            var p1 = this.toCanvasCoord({ x: this.data.x1, y: this.data.y1 });
-            var p2 = this.toCanvasCoord({ x: this.data.x2, y: this.data.y2 });
+            this.paper.setSize(
+                Math.abs(this.data.x1 - this.data.x2),
+                Math.abs(this.data.y1 - this.data.y2));
 
-            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.context.beginPath();
-            this.context.moveTo(p1.x, p1.y);
-            this.context.lineTo(p2.x, p2.y);
+            this.line.attr('path', this.getSvgPath());
+
             if (this.selected) {
-                this.context.strokeStyle = 'blue';
-                this.context.lineWidth = 3;
+                this.line.attr('stroke', 'blue');
+                this.line.attr('stroke-width', 3);
             } else {
-                this.context.strokeStyle = '#000000';
-                this.context.lineWidth = 2;
+                this.line.attr('stroke', '#000000');
+                this.line.attr('stroke-width', 2);
             }
-            this.context.stroke();
         },
         isHit: function (p) {
             var distance = utils.distanceToLine(p,
@@ -97,4 +103,4 @@ annotatr.shapes['line'] = (function (utils, $) {
     };
 
     return Line;
-}(annotatr.utils, window.jQuery));
+}(annotatr.utils, window.jQuery, Raphael));
