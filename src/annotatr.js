@@ -100,16 +100,16 @@ annotatr = (function ($) {
                 self.mouseOperation = new MouseMoveOperation(self, p);
             }
         });
-        $container.mouseup(function (e) {
-            e.preventDefault();
+        $('body').mouseup(function (e) {
             if (self.mouseOperation) {
+                e.preventDefault();
                 self.mouseOperation.up();
                 self.mouseOperation = null;
             }
         });
-        $container.mousemove(function (e) {
-            e.preventDefault();
+        $('body').mousemove(function (e) {
             if (self.mouseOperation) {
+                e.preventDefault();
                 var p = self.fromPagePoint({ x: e.pageX, y: e.pageY });
                 self.mouseOperation.move(p);
             }
