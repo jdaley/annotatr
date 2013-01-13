@@ -13,6 +13,8 @@ annotatr.Model = (function (annotatr, $) {
         this.data = data || [];
         this.elements = [];
         this.elementsChanged = $.Callbacks();
+        this.selected = null;
+        this.editing = null;
 
         for (var i = 0; i < this.data.length; i++) {
             this.elements.push(createElement(this.data[i]));
@@ -26,6 +28,32 @@ annotatr.Model = (function (annotatr, $) {
             this.elements.push(element);
             this.elementsChanged.fire();
             return element;
+        },
+        select: function (element) {
+            if (element !== this.selected) {
+                this.selectNone();
+                this.selected = element;
+                element.setSelected(true);
+            }
+        },
+        selectNone: function () {
+            if (this.selected) {
+                this.selected.setSelected(false);
+                this.selected = null;
+            }
+        },
+        startEditing: function (element) {
+            if (element !== this.editing) {
+                this.stopEditing();
+                this.editing = element;
+                element.setEditing(true);
+            }
+        },
+        stopEditing: function () {
+            if (this.editing) {
+                this.editing.setEditing(false);
+                this.editing = null;
+            }
         }
     };
 

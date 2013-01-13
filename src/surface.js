@@ -33,6 +33,22 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
     }
 
     Surface.prototype = {
+        fromPagePoint: function (pagePoint) {
+            var offset = this.$container.offset();
+            return {
+                x: pagePoint.x - offset.left,
+                y: pagePoint.y - offset.top
+            };
+        },
+        getHit: function (p) {
+            for (var i = this.model.elements.length - 1; i >= 0; i--) {
+                var element = this.model.elements[i];
+                if (element.isHit(p)) {
+                    return element;
+                }
+            }
+            return null;
+        },
         getObjs: function (element) {
             for (var i = 0; i < this.elementObjs.length; i++) {
                 if (this.elementObjs[i].element === element) {
