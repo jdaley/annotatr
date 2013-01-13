@@ -38,7 +38,7 @@ annotatr = (function ($) {
 
     function Annotatr($container, options) {
         this.model = new annotatr.Model(options.data);
-        this.surface = new annotatr.Surface($container, this.model);
+        this.surface = new annotatr.Surface($container, this.model, options.width, options.height);
 
         var self = this;
 

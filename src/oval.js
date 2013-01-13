@@ -3,8 +3,8 @@ annotatr.shapes['oval'] = (function (annotatr, $, Raphael) {
 
     function getCenter(element) {
         return {
-            x: element.data.width / 2.0,
-            y: element.data.height / 2.0
+            x: element.data.x + element.data.width / 2.0,
+            y: element.data.y + element.data.height / 2.0
         };
     }
 
@@ -16,14 +16,7 @@ annotatr.shapes['oval'] = (function (annotatr, $, Raphael) {
         return element.data.height / 2.0;
     }
 
-    function draw(element, $container) {
-        var $element = $('<div>');
-        $element.css('position', 'absolute');
-        $container.append($element);
-
-        var paper = new Raphael($element.get(0),
-            element.data.width, element.data.height);
-
+    function draw(element, $container, paper) {
         var canvasCenter = getCenter(element);
 
         var ellipse = paper.ellipse(
@@ -31,8 +24,6 @@ annotatr.shapes['oval'] = (function (annotatr, $, Raphael) {
             getHorizontalRadius(element), getVerticalRadius(element));
 
         var objs = {
-            $element: $element,
-            paper: paper,
             ellipse: ellipse
         };
 
@@ -42,11 +33,6 @@ annotatr.shapes['oval'] = (function (annotatr, $, Raphael) {
     }
 
     function update(element, objs) {
-        objs.$element.css('left', element.getPosition().x + 'px');
-        objs.$element.css('top', element.getPosition().y + 'px');
-
-        objs.paper.setSize(element.data.width, element.data.height);
-
         var canvasCenter = getCenter(element);
 
         objs.ellipse.attr('cx', canvasCenter.x);

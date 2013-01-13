@@ -66,36 +66,14 @@ annotatr.shapes['line'] = (function (annotatr, $, Raphael) {
     'use strict';
 
     function getSvgPath(element) {
-        var pos = element.getPosition();
-
-        var p1 = {
-            x: element.data.x1 - pos.x,
-            y: element.data.y1 - pos.y
-        };
-
-        var p2 = {
-            x: element.data.x2 - pos.x,
-            y: element.data.y2 - pos.y
-        };
-
-        return 'M' + p1.x + ',' + p1.y +
-            'L' + p2.x + ',' + p2.y;
+        return 'M' + element.data.x1 + ',' + element.data.y1 +
+            'L' + element.data.x2 + ',' + element.data.y2;
     }
 
-    function draw(element, $container) {
-        var $element = $('<div>');
-        $element.css('position', 'absolute');
-        $container.append($element);
-
-        var paper = new Raphael($element.get(0),
-            Math.abs(element.data.x1 - element.data.x2),
-            Math.abs(element.data.y1 - element.data.y2));
-
+    function draw(element, $container, paper) {
         var line = paper.path(getSvgPath(element));
 
         var objs = {
-            $element: $element,
-            paper: paper,
             line: line
         };
 
@@ -105,13 +83,6 @@ annotatr.shapes['line'] = (function (annotatr, $, Raphael) {
     }
 
     function update(element, objs) {
-        objs.$element.css('left', element.getPosition().x + 'px');
-        objs.$element.css('top', element.getPosition().y + 'px');
-
-        objs.paper.setSize(
-            Math.abs(element.data.x1 - element.data.x2),
-            Math.abs(element.data.y1 - element.data.y2));
-
         objs.line.attr('path', getSvgPath(element));
 
         if (element.selected) {

@@ -1,10 +1,24 @@
 annotatr.Surface = (function (annotatr, $, Raphael) {
     'use strict';
 
-    function Surface($container, model) {
+    function Surface($container, model, width, height) {
         this.$container = $container;
         this.model = model;
         this.elementObjs = [];
+
+        $container.css('position', 'relative');
+        $container.css('overflow', 'hidden');
+        $container.css('background-color', '#ffffff');
+
+        this.$paperContainer = $('<div>');
+        this.$paperContainer.css('position', 'absolute');
+        this.$paperContainer.css('width', width);
+        this.$paperContainer.css('height', height);
+        this.$paperContainer.css('margin', '0');
+        this.$paperContainer.css('padding', '0');
+        $container.append(this.$paperContainer);
+
+        this.paper = new Raphael(this.$paperContainer.get(0), width, height);
 
         var self = this;
         var elementsChangedHandler = function () { self.update(); };
@@ -14,10 +28,6 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
         this.dispose = function () {
             self.model.elementsChanged.remove(elementsChangedHandler);
         };
-
-        $container.css('position', 'relative');
-        $container.css('overflow', 'hidden');
-        $container.css('background-color', '#ffffff');
 
         this.update();
     }
@@ -37,7 +47,7 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
 
                 if (!this.getObjs(element)) {
                     var objs = annotatr.shapes[element.data.type].draw(
-                        element, this.$container);
+                        element, this.$container, this.paper);
 
                     this.elementObjs.push({
                         element: element,
