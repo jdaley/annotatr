@@ -1,57 +1,29 @@
-annotatr.shapes['line'] = (function (utils, $, Raphael) {
+annotatr.Line = (function (annotatr, $) {
     'use strict';
 
-    function Line($container, data) {
-        this.$container = $container;
+    function Line(data) {
         this.data = data;
-
-        this.$element = $('<div>');
-        this.$element.css('position', 'absolute');
-        $container.append(this.$element);
-
-        this.paper = new Raphael(this.$element.get(0),
-            Math.abs(this.data.x1 - this.data.x2),
-            Math.abs(this.data.y1 - this.data.y2));
-
-        this.line = this.paper.path(this.getSvgPath());
-
-        this.draw();
+        this.selected = false;
+        this.changed = $.Callbacks();
     }
 
     Line.prototype = {
-        getSvgPath: function () {
-            var p1 = this.toCanvasCoord({ x: this.data.x1, y: this.data.y1 });
-            var p2 = this.toCanvasCoord({ x: this.data.x2, y: this.data.y2 });
-
-            return 'M' + p1.x + ',' + p1.y +
-                'L' + p2.x + ',' + p2.y;
-        },
-        toCanvasCoord: function (p) {
+        getPosition: function () {
             return {
-                x: p.x - Math.min(this.data.x1, this.data.x2),
-                y: p.y - Math.min(this.data.y1, this.data.y2)
+                x: Math.min(this.data.x1, this.data.x2),
+                y: Math.min(this.data.y1, this.data.y2)
             };
         },
-        draw: function () {
-            this.$element.css('left', Math.min(this.data.x1, this.data.x2) + 'px');
-            this.$element.css('top', Math.min(this.data.y1, this.data.y2) + 'px');
-
-            this.paper.setSize(
-                Math.abs(this.data.x1 - this.data.x2),
-                Math.abs(this.data.y1 - this.data.y2));
-
-            this.line.attr('path', this.getSvgPath());
-
-            if (this.selected) {
-                this.line.attr('stroke', 'blue');
-                this.line.attr('stroke-width', 3);
-            } else {
-                this.line.attr('stroke', '#000000');
-                this.line.attr('stroke-width', 2);
-            }
+        setPosition: function (p) {
+            var delta = annotatr.utils.subtract(p, this.getPosition());
+            this.data.x1 += delta.x;
+            this.data.y1 += delta.y;
+            this.data.x2 += delta.x;
+            this.data.y2 += delta.y;
+            this.changed.fire(this);
         },
         isHit: function (p) {
-            var distance = utils.distanceToLine(p,
+            var distance = annotatr.utils.distanceToLine(p,
                 { x: this.data.x1, y: this.data.y1 },
                 { x: this.data.x2, y: this.data.y2 });
             return distance <= 5;
@@ -59,26 +31,11 @@ annotatr.shapes['line'] = (function (utils, $, Raphael) {
         getHitPoint: function (p) {
             var points = this.getPoints();
             for (var i = 0; i < points.length; i++) {
-                if (utils.distance(p, points[i]) <= 10) {
+                if (annotatr.utils.distance(p, points[i]) <= 10) {
                     return i;
                 }
             }
             return null;
-        },
-        getPos: function () {
-            return {
-                x: Math.min(this.data.x1, this.data.x2),
-                y: Math.min(this.data.y1, this.data.y2)
-            };
-        },
-        setPos: function (p) {
-            var delta = this.toCanvasCoord(p);
-            this.data.x1 += delta.x;
-            this.data.y1 += delta.y;
-            this.data.x2 += delta.x;
-            this.data.y2 += delta.y;
-            this.$element.css('left', Math.min(this.data.x1, this.data.x2) + 'px');
-            this.$element.css('top', Math.min(this.data.y1, this.data.y2) + 'px');
         },
         getPoints: function () {
             return [
@@ -94,13 +51,80 @@ annotatr.shapes['line'] = (function (utils, $, Raphael) {
                 this.data.x2 = p.x;
                 this.data.y2 = p.y;
             }
-            this.draw();
+            this.changed.fire(this);
         },
         setSelected: function (selected) {
             this.selected = selected;
-            this.draw();
+            this.changed.fire(this);
         }
     };
 
     return Line;
-}(annotatr.utils, window.jQuery, Raphael));
+}(annotatr, window.jQuery));
+
+annotatr.shapes['line'] = (function (annotatr, $, Raphael) {
+    'use strict';
+
+    function getSvgPath(element) {
+        var pos = element.getPosition();
+
+        var p1 = {
+            x: element.data.x1 - pos.x,
+            y: element.data.y1 - pos.y
+        };
+
+        var p2 = {
+            x: element.data.x2 - pos.x,
+            y: element.data.y2 - pos.y
+        };
+
+        return 'M' + p1.x + ',' + p1.y +
+            'L' + p2.x + ',' + p2.y;
+    }
+
+    function draw(element, $container) {
+        var $element = $('<div>');
+        $element.css('position', 'absolute');
+        $container.append($element);
+
+        var paper = new Raphael($element.get(0),
+            Math.abs(element.data.x1 - element.data.x2),
+            Math.abs(element.data.y1 - element.data.y2));
+
+        var line = paper.path(getSvgPath(element));
+
+        var objs = {
+            $element: $element,
+            paper: paper,
+            line: line
+        };
+
+        update(element, objs);
+
+        return objs;
+    }
+
+    function update(element, objs) {
+        objs.$element.css('left', element.getPosition().x + 'px');
+        objs.$element.css('top', element.getPosition().y + 'px');
+
+        objs.paper.setSize(
+            Math.abs(element.data.x1 - element.data.x2),
+            Math.abs(element.data.y1 - element.data.y2));
+
+        objs.line.attr('path', getSvgPath(element));
+
+        if (element.selected) {
+            objs.line.attr('stroke', 'blue');
+            objs.line.attr('stroke-width', 3);
+        } else {
+            objs.line.attr('stroke', '#000000');
+            objs.line.attr('stroke-width', 2);
+        }
+    }
+
+    return {
+        draw: draw,
+        update: update
+    };
+}(annotatr, window.jQuery, Raphael));

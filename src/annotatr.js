@@ -5,17 +5,17 @@ annotatr = (function ($) {
 
     function MouseMoveOperation(instance, p) {
         this.instance = instance;
-        this.originalPos = instance.selected.getPos();
+        this.originalPos = instance.selected.getPosition();
         this.offset = annotatr.utils.subtract(p, this.originalPos);
     }
 
     MouseMoveOperation.prototype = {
         move: function (p) {
-            this.instance.selected.setPos(annotatr.utils.subtract(p, this.offset));
+            this.instance.selected.setPosition(annotatr.utils.subtract(p, this.offset));
         },
         up: function () { },
         cancel: function () {
-            this.instance.selected.setPos(this.originalPos);
+            this.instance.selected.setPosition(this.originalPos);
         }
     };
 
@@ -37,16 +37,10 @@ annotatr = (function ($) {
     };
 
     function Annotatr($container, options) {
+        this.model = new annotatr.Model(options.data);
+        this.surface = new annotatr.Surface($container, this.model);
+
         var self = this;
-
-        self.$container = $container;
-        self.data = options.data;
-
-        $container.css('position', 'relative');
-        $container.css('overflow', 'hidden');
-        $container.css('background-color', '#ffffff');
-
-        self.draw();
 
         if (options.$toolbar) {
             self.addToolbar(options.$toolbar);
@@ -63,35 +57,35 @@ annotatr = (function ($) {
                 if (self.editable === hit) {
                     return;
                 } else {
-                    self.editable.stopEditing();
+                    self.editable.setEditing(false);
                     self.editable = null;
                 }
             }
             e.preventDefault();
             if (self.mode) {
-                var newShape;
+                var newShapeData;
                 if (self.mode === 'line') {
-                    newShape = new annotatr.shapes['line'](self.$container, {
+                    newShapeData = {
                         type: 'line',
                         x1: p.x,
                         y1: p.y,
                         x2: p.x,
                         y2: p.y
-                    });
+                    };
                 } else {
-                    newShape = new annotatr.shapes[self.mode](self.$container, {
+                    newShapeData = {
                         type: self.mode,
                         text: '',
                         x: p.x,
                         y: p.y,
                         width: 0,
                         height: 0
-                    });
+                    };
                 }
-                self.shapes.push(newShape);
+                var newElement = self.model.add(newShapeData);
                 self.mode = null;
-                self.select(newShape);
-                self.mouseOperation = new MouseResizeOperation(self, newShape.getPoints().length - 1, p);
+                self.select(newElement);
+                self.mouseOperation = new MouseResizeOperation(self, newElement.getPoints().length - 1, p);
             } else if (hit === null) {
                 self.selectNone();
             } else if (hit === self.selected) {
@@ -124,44 +118,35 @@ annotatr = (function ($) {
             e.preventDefault();
             var p = self.fromPagePoint({ x: e.pageX, y: e.pageY });
             var hit = self.getHit(p);
-            if (hit !== null && hit.startEditing) {
+            if (hit !== null && hit.setEditing) {
                 self.editable = hit;
-                hit.startEditing();
+                hit.setEditing(true);
             }
         });
     }
 
     Annotatr.prototype = {
         fromPagePoint: function (pagePoint) {
-            var offset = this.$container.offset();
+            var offset = this.surface.$container.offset();
             return {
                 x: pagePoint.x - offset.left,
                 y: pagePoint.y - offset.top
             };
         },
         getHit: function (p) {
-            for (var i = this.shapes.length - 1; i >= 0; i--) {
-                var shape = this.shapes[i];
-                if (shape.isHit(p)) {
-                    return shape;
+            for (var i = this.model.elements.length - 1; i >= 0; i--) {
+                var element = this.model.elements[i];
+                if (element.isHit(p)) {
+                    return element;
                 }
             }
             return null;
         },
-        draw: function () {
-            this.$container.empty();
-            this.shapes = [];
-
-            for (var i = 0; i < this.data.length; i++) {
-                var item = this.data[i];
-                this.shapes.push(new annotatr.shapes[item.type](this.$container, item));
-            }
-        },
-        select: function (shape) {
-            if (shape !== this.selected) {
+        select: function (element) {
+            if (element !== this.selected) {
                 this.selectNone();
-                this.selected = shape;
-                shape.setSelected(true);
+                this.selected = element;
+                element.setSelected(true);
             }
         },
         selectNone: function () {
