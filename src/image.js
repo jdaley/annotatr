@@ -30,14 +30,6 @@ annotatr.shapes['image'] = (function (utils, $) {
         objs.border.attr('y', element.data.y);
         objs.border.attr('width', element.data.width);
         objs.border.attr('height', element.data.height);
-
-        if (element.selected) {
-            objs.border.attr('stroke', 'blue');
-            objs.border.attr('stroke-width', 3);
-        } else {
-            objs.border.attr('stroke', '#000000');
-            objs.border.attr('stroke-width', 2);
-        }
     }
     
     return {

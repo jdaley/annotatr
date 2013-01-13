@@ -16,6 +16,7 @@ annotatr = (function ($) {
     Annotatr.prototype = {
         dispose: function () {
             this.input.dispose();
+            this.surface.dispose();
         },
         addToolbar: function ($toolbar) {
             var model = this.model;

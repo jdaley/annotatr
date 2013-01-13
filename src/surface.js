@@ -1,38 +1,91 @@
 annotatr.Surface = (function (annotatr, $, Raphael) {
     'use strict';
 
+    function createPaper($container, width, height) {
+        var $paperContainer = $('<div>');
+        $paperContainer.css('position', 'absolute');
+        $paperContainer.css('margin', '0');
+        $paperContainer.css('padding', '0');
+        $container.append($paperContainer);
+
+        var paper = new Raphael($paperContainer.get(0), width, height);
+        return paper;
+    }
+
+    function drawSelect(element, paper) {
+        var objs = {};
+
+        if (element.data.type !== 'line') {
+            objs.border = paper.rect(
+                element.data.x, element.data.y,
+                element.data.width, element.data.height);
+        }
+
+        var points = element.getPoints();
+        objs.points = [];
+
+        for (var i = 0; i < points.length; i++) {
+            var rect = paper.rect(
+                points[i].x - 3, points[i].y - 3, 6, 6, 1);
+            objs.points.push(rect);
+        }
+
+        updateSelect(element, objs);
+
+        return objs;
+    }
+
+    function updateSelect(element, objs) {
+        var i;
+        if (element.selected) {
+            if (objs.border) {
+                objs.border.show();
+                objs.border.attr('x', element.data.x);
+                objs.border.attr('y', element.data.y);
+                objs.border.attr('width', element.data.width);
+                objs.border.attr('height', element.data.height);
+            }
+            var points = element.getPoints();
+            for (i = 0; i < objs.points.length; i++) {
+                var rect = objs.points[i];
+                rect.show();
+                rect.attr('x', points[i].x - 3);
+                rect.attr('y', points[i].y - 3);
+            }
+        } else {
+            if (objs.border) {
+                objs.border.hide();
+            }
+            for (i = 0; i < objs.points.length; i++) {
+                objs.points[i].hide();
+            }
+        }
+    }
+
     function Surface($container, model, width, height) {
         this.$container = $container;
         this.model = model;
-        this.elementObjs = [];
+        this.objs = [];
 
         $container.css('position', 'relative');
         $container.css('overflow', 'hidden');
         $container.css('background-color', '#ffffff');
 
-        this.$paperContainer = $('<div>');
-        this.$paperContainer.css('position', 'absolute');
-        this.$paperContainer.css('width', width);
-        this.$paperContainer.css('height', height);
-        this.$paperContainer.css('margin', '0');
-        this.$paperContainer.css('padding', '0');
-        $container.append(this.$paperContainer);
-
-        this.paper = new Raphael(this.$paperContainer.get(0), width, height);
+        this.renderPaper = createPaper($container, width, height);
+        this.selectPaper = createPaper($container, width, height);
 
         var self = this;
-        var elementsChangedHandler = function () { self.update(); };
+        this.update = function () { Surface.prototype.update.call(self); };
 
-        this.model.elementsChanged.add(elementsChangedHandler);
-
-        this.dispose = function () {
-            self.model.elementsChanged.remove(elementsChangedHandler);
-        };
+        this.model.elementsChanged.add(this.update);
 
         this.update();
     }
 
     Surface.prototype = {
+        dispose: function () {
+            this.model.elementsChanged.remove(this.update);
+        },
         fromPagePoint: function (pagePoint) {
             var offset = this.$container.offset();
             return {
@@ -49,10 +102,18 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
             }
             return null;
         },
-        getObjs: function (element) {
-            for (var i = 0; i < this.elementObjs.length; i++) {
-                if (this.elementObjs[i].element === element) {
-                    return this.elementObjs[i].objs;
+        getRenderObjs: function (element) {
+            for (var i = 0; i < this.objs.length; i++) {
+                if (this.objs[i].element === element) {
+                    return this.objs[i].renderObjs;
+                }
+            }
+            return null;
+        },
+        getSelectObjs: function (element) {
+            for (var i = 0; i < this.objs.length; i++) {
+                if (this.objs[i].element === element) {
+                    return this.objs[i].selectObjs;
                 }
             }
             return null;
@@ -61,19 +122,23 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
             for (var i = 0; i < this.model.elements.length; i++) {
                 var element = this.model.elements[i];
 
-                if (!this.getObjs(element)) {
-                    var objs = annotatr.shapes[element.data.type].draw(
-                        element, this.$container, this.paper);
+                if (!this.getRenderObjs(element)) {
+                    var renderObjs = annotatr.shapes[element.data.type].draw(
+                        element, this.$container, this.renderPaper);
 
-                    this.elementObjs.push({
+                    var selectObjs = drawSelect(element, this.selectPaper);
+
+                    this.objs.push({
                         element: element,
-                        objs: objs
+                        renderObjs: renderObjs,
+                        selectObjs: selectObjs
                     });
 
                     var self = this;
                     element.changed.add(function (element) {
                         var renderer = annotatr.shapes[element.data.type];
-                        renderer.update(element, self.getObjs(element));
+                        renderer.update(element, self.getRenderObjs(element));
+                        updateSelect(element, self.getSelectObjs(element));
                     });
                 }
             }
