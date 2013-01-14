@@ -9,6 +9,7 @@ annotatr.Shape = (function (annotatr, $) {
     }
 
     Shape.prototype = {
+        isLine: false,
         getPosition: function () {
             return { x: this.data.x, y: this.data.y };
         },

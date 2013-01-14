@@ -8,6 +8,7 @@ annotatr.Line = (function (annotatr, $) {
     }
 
     Line.prototype = {
+        isLine: true,
         getPosition: function () {
             return {
                 x: Math.min(this.data.x1, this.data.x2),

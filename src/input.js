@@ -25,8 +25,26 @@ annotatr.Input = (function (annotatr, $) {
     }
 
     MouseResizeOperation.prototype = {
-        move: function (p) {
-            this.selected.setPoint(this.index, annotatr.utils.subtract(p, this.offset));
+        move: function (p, shiftKey) {
+            var newPoint = annotatr.utils.subtract(p, this.offset);
+            if (shiftKey)
+            {
+                if (this.selected.isLine) {
+                    var otherHandle = this.index === 0 ? this.selected.getPoints()[1] : this.selected.getPoints()[0];
+                    var xDiff = Math.abs(newPoint.x - otherHandle.x);
+                    var yDiff = Math.abs(newPoint.y - otherHandle.y);
+                    if (xDiff < yDiff / 2) {
+                        newPoint.x = otherHandle.x;
+                    } else if (yDiff < xDiff / 2) {
+                        newPoint.y = otherHandle.y;
+                    } else {
+                        var length = Math.min(xDiff, yDiff);
+                        newPoint.x = otherHandle.x + length * (newPoint.x > otherHandle.x ? 1 : -1);
+                        newPoint.y = otherHandle.y + length * (newPoint.y > otherHandle.y ? 1 : -1);
+                    }
+                }
+            }
+            this.selected.setPoint(this.index, newPoint);
         },
         up: function () { },
         cancel: function () {
@@ -123,7 +141,7 @@ annotatr.Input = (function (annotatr, $) {
             if (this.mouseOperation) {
                 e.preventDefault();
                 var p = this.surface.fromPagePoint({ x: e.pageX, y: e.pageY });
-                this.mouseOperation.move(p);
+                this.mouseOperation.move(p, e.shiftKey);
             }
         },
         dblClick: function (e) {
