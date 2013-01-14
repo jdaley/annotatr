@@ -43,10 +43,12 @@ annotatr.Input = (function (annotatr, $) {
         this.mouseUp = function (e) { Input.prototype.mouseUp.call(self, e); };
         this.mouseMove = function (e) { Input.prototype.mouseMove.call(self, e); };
         this.dblClick = function (e) { Input.prototype.dblClick.call(self, e); };
-
+        this.keyDown = function (e) { Input.prototype.keyDown.call(self, e); };
+        
         surface.$container.on('mousedown', this.mouseDown);
         $('body').on('mouseup', this.mouseUp);
         $('body').on('mousemove', this.mouseMove);
+        $(document).on('keydown', this.keyDown);
         surface.$container.on('dblclick', this.dblClick);
     }
 
@@ -130,6 +132,15 @@ annotatr.Input = (function (annotatr, $) {
             var hit = this.surface.getHit(p);
             if (hit !== null && hit.setEditing) {
                 this.model.startEditing(hit);
+            }
+        },
+        keyDown: function (e) {
+            if (e.keyCode === 27) { // escape
+                if (this.mouseOperation) {
+                    e.preventDefault();
+                    this.mouseOperation.cancel();
+                    this.mouseOperation = null;
+                }
             }
         }
     };
