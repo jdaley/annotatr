@@ -67,9 +67,39 @@ annotatr.shapes['line'] = (function (annotatr, $, Raphael) {
     'use strict';
 
     function getSvgPath(element) {
-        return 'M' + element.data.x1 + ',' + element.data.y1 +
-            'L' + element.data.x2 + ',' + element.data.y2;
-    }
+        var arrowHeadLength = 10;
+        var arrowHeadSteepness = 26;
+
+        var y1 = element.data.y1;
+        var y2 = element.data.y2;
+        var x1 = element.data.x1;
+        var x2 = element.data.x2;
+
+        var lineAngle = Math.atan((y2 - y1)/(x2 - x1));
+        var end1;
+        var end2;
+       
+        end1 = lineAngle + arrowHeadSteepness * 3.1 / 180;
+        end2 = lineAngle - arrowHeadSteepness * 3.1 / 180;
+
+        if(x2 >= x1){
+            var y3 = y2 - arrowHeadLength * Math.sin(end1);
+            var x3 = x2 - arrowHeadLength * Math.cos(end1);
+            var y4 = y2 - arrowHeadLength * Math.sin(end2);
+            var x4 = x2 - arrowHeadLength * Math.cos(end2);
+        }
+        else{
+            var y3 = y2 + arrowHeadLength * Math.sin(end1);
+            var x3 = x2 + arrowHeadLength * Math.cos(end1);
+            var y4 = y2 + arrowHeadLength * Math.sin(end2);
+            var x4 = x2 + arrowHeadLength * Math.cos(end2);
+        }
+        return 'M' + x1 + ',' + y1 +
+            'L' + x2 + ',' + y2 +
+            'M' + (x3) + ',' + (y3) +
+            'L' + x2 + ',' + y2 +
+            'L' + (x4) + ',' + (y4);
+}
 
     function draw(element, $container, paper) {
         var line = paper.path(getSvgPath(element));
