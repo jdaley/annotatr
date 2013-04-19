@@ -102,6 +102,16 @@ annotatr.Input = (function (annotatr, $) {
                         x2: p.x,
                         y2: p.y
                     };
+                }
+                else if (this.model.mode === 'arrow'){
+                    newShapeData = {
+                        type: 'line',
+                        x1: p.x,
+                        y1: p.y,
+                        x2: p.x,
+                        y2: p.y,
+                        head: 'arrow'
+                    };
                 } else {
                     newShapeData = {
                         type: this.model.mode,

@@ -67,8 +67,14 @@ annotatr.shapes['line'] = (function (annotatr, $, Raphael) {
     'use strict';
 
     function getSvgPath(element) {
-        var arrowHeadLength = 10;
-        var arrowHeadSteepness = 26;
+        if(element.data.head === 'arrow'){
+            var arrowHeadLength = 10;
+            var arrowHeadSteepness = 26;
+        }
+        else{
+            var arrowHeadLength = 0;
+            var arrowHeadSteepness = 1;   
+        }
 
         var y1 = element.data.y1;
         var y2 = element.data.y2;
