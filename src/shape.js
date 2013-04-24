@@ -69,6 +69,9 @@ annotatr.Shape = (function (annotatr, $) {
         setEditing: function (editing) {
             this.editing = editing;
             this.changed.fire(this);
+        },
+        fireChanged: function () {
+            this.changed.fire(this);
         }
     };
 

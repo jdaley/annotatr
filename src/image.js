@@ -31,9 +31,15 @@ annotatr.shapes['image'] = (function (utils, $) {
         objs.border.attr('width', element.data.width);
         objs.border.attr('height', element.data.height);
     }
-    
+
+    function remove(objs) {
+        objs.image.remove();
+        objs.border.remove();
+    }
+
     return {
         draw: draw,
-        update: update
+        update: update,
+        remove: remove
     };
 }(annotatr.utils, window.jQuery));

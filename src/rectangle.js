@@ -25,8 +25,13 @@ annotatr.shapes['rectangle'] = (function (annotatr, $, Raphael) {
         objs.rectangle.attr('height', element.data.height);
     }
 
+    function remove(objs) {
+        objs.rectangle.remove();
+    }
+
     return {
         draw: draw,
-        update: update
+        update: update,
+        remove: remove
     };
 }(annotatr, window.jQuery, Raphael));

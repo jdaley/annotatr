@@ -119,7 +119,26 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
             return null;
         },
         update: function () {
-            for (var i = 0; i < this.model.elements.length; i++) {
+            var i = 0;
+
+            while (i < this.objs.length) {
+                var toDelete = true;
+
+                for (var j = 0; j < this.model.elements.length; j++) {
+                    if (this.objs[i].element === this.model.elements[j]) {
+                        toDelete = false;
+                    }
+                }
+
+                if (toDelete) {
+                    annotatr.shapes[element.data.type].remove(this.objs[i]);
+                    this.objs.splice(i, 1);
+                } else {
+                    i++;
+                }
+            }
+
+            for (i = 0; i < this.model.elements.length; i++) {
                 var element = this.model.elements[i];
 
                 if (!this.getRenderObjs(element)) {

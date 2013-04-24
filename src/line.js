@@ -57,6 +57,9 @@ annotatr.Line = (function (annotatr, $) {
         setSelected: function (selected) {
             this.selected = selected;
             this.changed.fire(this);
+        },
+        fireChanged: function () {
+            this.changed.fire(this);
         }
     };
 
@@ -73,7 +76,7 @@ annotatr.shapes['line'] = (function (annotatr, $, Raphael) {
         }
         else{
             var arrowHeadLength = 0;
-            var arrowHeadSteepness = 1;   
+            var arrowHeadSteepness = 1;
         }
 
         var y1 = element.data.y1;
@@ -126,8 +129,13 @@ annotatr.shapes['line'] = (function (annotatr, $, Raphael) {
         objs.line.attr('path', getSvgPath(element));
     }
 
+    function remove(objs) {
+        objs.line.remove();
+    }
+
     return {
         draw: draw,
-        update: update
+        update: update,
+        remove: remove
     };
 }(annotatr, window.jQuery, Raphael));

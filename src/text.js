@@ -37,8 +37,13 @@ annotatr.shapes['text'] = (function (annotatr, $, Raphael) {
         }
     }
 
+    function remove(objs) {
+        objs.$element.remove();
+    }
+
     return {
         draw: draw,
-        update: update
+        update: update,
+        remove: remove
     };
 }(annotatr, window.jQuery, Raphael));

@@ -29,6 +29,11 @@ annotatr.Model = (function (annotatr, $) {
             this.elementsChanged.fire();
             return element;
         },
+        remove: function (element) {
+            this.data.pop();
+            this.elements.pop();
+            this.elementsChanged.fire();
+        },
         select: function (element) {
             if (element !== this.selected) {
                 this.selectNone();

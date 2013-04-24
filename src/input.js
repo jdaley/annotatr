@@ -17,6 +17,32 @@ annotatr.Input = (function (annotatr, $) {
         }
     };
 
+    function MouseDrawOperation(model, path) {
+        this.model = model;
+        this.path = path;
+        this.maxX = path.data.x;
+        this.maxY = path.data.y;
+    }
+
+    MouseDrawOperation.prototype = {
+        move: function (p) {
+            this.path.data.path.push([p.x,p.y]);
+            this.path.data.x = Math.min(this.path.data.x, p.x);
+            this.path.data.y = Math.min(this.path.data.y, p.y);
+            this.maxX = Math.max(this.maxX, p.x);
+            this.maxY = Math.max(this.maxY, p.y);
+            this.path.data.width = this.maxX - this.path.data.x;
+            this.path.data.height = this.maxY - this.path.data.y;
+            this.path.fireChanged();
+        },
+        up: function () {
+            this.model.select(this.path);
+        },
+        cancel: function () {
+            this.model.remove(this.path);
+        }
+    };
+
     function MouseResizeOperation(selected, index, p) {
         this.selected = selected;
         this.index = index;
@@ -62,7 +88,6 @@ annotatr.Input = (function (annotatr, $) {
         this.mouseMove = function (e) { Input.prototype.mouseMove.call(self, e); };
         this.dblClick = function (e) { Input.prototype.dblClick.call(self, e); };
         this.keyDown = function (e) { Input.prototype.keyDown.call(self, e); };
-        
         surface.$container.on('mousedown', this.mouseDown);
         $('body').on('mouseup', this.mouseUp);
         $('body').on('mousemove', this.mouseMove);
@@ -92,7 +117,20 @@ annotatr.Input = (function (annotatr, $) {
                 }
             }
             e.preventDefault();
-            if (this.model.mode) {
+            if (this.model.mode === 'path'){
+                newShapeData = {
+                    type: 'path',
+                    x: p.x,
+                    y: p.y,
+                    width: 0,
+                    height: 0,
+                    path: [[p.x,p.y]]
+                };
+                var newPath = this.model.add(newShapeData);
+                this.model.mode = null;
+                this.model.selectNone();
+                this.mouseOperation = new MouseDrawOperation(this.model, newPath);
+            } else if (this.model.mode) {
                 var newShapeData;
                 if (this.model.mode === 'line') {
                     newShapeData = {
@@ -102,8 +140,7 @@ annotatr.Input = (function (annotatr, $) {
                         x2: p.x,
                         y2: p.y
                     };
-                }
-                else if (this.model.mode === 'arrow'){
+                } else if (this.model.mode === 'arrow'){
                     newShapeData = {
                         type: 'line',
                         x1: p.x,
@@ -112,7 +149,7 @@ annotatr.Input = (function (annotatr, $) {
                         y2: p.y,
                         head: 'arrow'
                     };
-                } else {
+                } else{
                     newShapeData = {
                         type: this.model.mode,
                         text: '',

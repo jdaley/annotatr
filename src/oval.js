@@ -44,8 +44,13 @@ annotatr.shapes['oval'] = (function (annotatr, $, Raphael) {
         objs.ellipse.attr('ry', getVerticalRadius(element));
     }
 
+    function remove(objs) {
+        objs.ellipse.remove();
+    }
+
     return {
         draw: draw,
-        update: update
+        update: update,
+        remove: remove
     };
 }(annotatr, window.jQuery, Raphael));

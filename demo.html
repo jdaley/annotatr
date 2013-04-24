@@ -6,6 +6,7 @@
 </head>
 <body style="background-color: lightgray">
     <div id="demo-annotator-toolbar">
+        <button data-annotatr="path">Path</button>
         <button data-annotatr="arrow">Arrow</button>
         <button data-annotatr="line">Line</button>
         <button data-annotatr="text">Text</button>
@@ -23,6 +24,7 @@
     <script src="src/line.js"></script>
     <script src="src/model.js"></script>
     <script src="src/oval.js"></script>
+    <script src="src/path.js"></script>
     <script src="src/rectangle.js"></script>
     <script src="src/shape.js"></script>
     <script src="src/surface.js"></script>
@@ -56,6 +58,14 @@
                     y: 200,
                     width: 100,
                     height: 50
+                },
+                {
+                    type: 'path',
+                    x: 10,
+                    y: 10,
+                    width: 100,
+                    height: 100,
+                    path: [[0,0],[50,50],[50,20],[100,20]]
                 }
             ];
 
