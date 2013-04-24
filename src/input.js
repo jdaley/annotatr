@@ -36,7 +36,7 @@ annotatr.Input = (function (annotatr, $) {
             this.path.fireChanged();
         },
         up: function () {
-            this.model.select(this.path);
+            this.model.mode = 'path';
         },
         cancel: function () {
             this.model.remove(this.path);

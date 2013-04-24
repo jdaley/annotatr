@@ -24,7 +24,11 @@ annotatr = (function ($) {
                 var $this = $(this);
                 var mode = $this.attr('data-annotatr');
                 $this.click(function () {
-                    model.mode = mode;
+                    if (model.mode === mode) {
+                        model.mode = null;
+                    } else {
+                        model.mode = mode;
+                    }
                 });
             });
         }
