@@ -30,9 +30,17 @@ annotatr.Model = (function (annotatr, $) {
             return element;
         },
         remove: function (element) {
-            this.data.pop();
-            this.elements.pop();
-            this.elementsChanged.fire();
+            if (this.selected === element) {
+                this.selectNone();
+            }
+            for (var i = 0; i < this.elements.length; i++) {
+                if (this.elements[i] === element) {
+                    this.data.splice(i, 1);
+                    this.elements.splice(i, 1);
+                    this.elementsChanged.fire();
+                    return;
+                }
+            }
         },
         select: function (element) {
             if (element !== this.selected) {

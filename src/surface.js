@@ -62,6 +62,16 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
         }
     }
 
+    function removeSelect(objs) {
+        if (objs.border) {
+            objs.border.remove();
+        }
+
+        for (var i = 0; i < objs.points.length; i++) {
+            objs.points[i].remove();
+        }
+    }
+
     function Surface($container, model, width, height) {
         this.$container = $container;
         this.model = model;
@@ -123,15 +133,16 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
 
             while (i < this.objs.length) {
                 var toDelete = true;
-
+                var obj = this.objs[i];
                 for (var j = 0; j < this.model.elements.length; j++) {
-                    if (this.objs[i].element === this.model.elements[j]) {
+                    if (obj.element === this.model.elements[j]) {
                         toDelete = false;
                     }
                 }
 
                 if (toDelete) {
-                    annotatr.shapes[element.data.type].remove(this.objs[i]);
+                    annotatr.shapes[obj.element.data.type].remove(obj.renderObjs);
+                    removeSelect(obj.selectObjs);
                     this.objs.splice(i, 1);
                 } else {
                     i++;
