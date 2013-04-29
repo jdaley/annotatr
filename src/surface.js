@@ -29,6 +29,18 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
                 points[i].x - 3, points[i].y - 3, 6, 6, 1);
             objs.points.push(rect);
         }
+        // Draw the toolbar for the selected shape
+            var rect = paper.rect(
+                points[0].x + 2, points[0].y - 13, 10, 10, 1);
+            element.formatBar = rect;
+        // Set up the "isHit()" code for the toolbar
+        element.formatBar.isHit = function (p) {
+            var formatBarRec = element.formatBar[0]; //Rect
+            return p.x >= formatBarRec.x.baseVal.value &&
+                p.x <= formatBarRec.x.baseVal.value + formatBarRec.width.baseVal.value &&
+                p.y >= formatBarRec.y.baseVal.value &&
+                p.y <= formatBarRec.y.baseVal.value + formatBarRec.height.baseVal.value;
+        } 
 
         updateSelect(element, objs);
 
@@ -45,6 +57,8 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
                 objs.border.attr('width', element.data.width);
                 objs.border.attr('height', element.data.height);
             }
+            
+            // Draw the handles on the selected shape
             var points = element.getPoints();
             for (i = 0; i < objs.points.length; i++) {
                 var rect = objs.points[i];
@@ -52,12 +66,20 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
                 rect.attr('x', points[i].x - 3);
                 rect.attr('y', points[i].y - 3);
             }
+
+            element.formatBar.show();
+            element.formatBar.attr('x', points[0].x + 2);
+            element.formatBar.attr('y', points[0].y - 13);
+
         } else {
             if (objs.border) {
                 objs.border.hide();
             }
             for (i = 0; i < objs.points.length; i++) {
                 objs.points[i].hide();
+            }
+            if (element.formatBar) {
+                element.formatBar.hide();
             }
         }
     }
@@ -104,11 +126,17 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
             };
         },
         getHit: function (p) {
+
+            // Cycle through the elements to see if any have been hit
             for (var i = this.model.elements.length - 1; i >= 0; i--) {
                 var element = this.model.elements[i];
-                if (element.isHit(p)) {
+                if (element.selected && element.formatBar.isHit(p)){
+                    element.data.stroke = '#FF00FF';
                     return element;
                 }
+                if (element.isHit(p)) {
+                    return element;
+                } 
             }
             return null;
         },
