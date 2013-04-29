@@ -6,7 +6,8 @@ annotatr.shapes['text'] = (function (annotatr, $, Raphael) {
         $element.css('position', 'absolute');
         $element.css('overflow', 'hidden');
         $element.css('background-color', '#ffffff');
-        $element.css('border', 'solid 1px black');
+        $element.css('border', 'solid 1px');
+        $element.css('border-color', element.data.stroke);
         $element.text(element.data.text);
         $container.append($element);
 
@@ -25,7 +26,7 @@ annotatr.shapes['text'] = (function (annotatr, $, Raphael) {
         objs.$element.css('top', element.data.y + 'px');
         objs.$element.css('width', element.data.width + 'px');
         objs.$element.css('height', element.data.height + 'px');
-
+        objs.$element.css('border-color', element.data.stroke);
         if (element.editing && !objs.editing) {
             objs.$element.attr('contentEditable', 'true');
             objs.$element.focus();

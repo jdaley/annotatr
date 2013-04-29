@@ -3,7 +3,7 @@ annotatr.shapes['path'] = (function (annotatr, $, Raphael) {
 
     function draw(element, $container, paper) {
         var rPath = paper.path('M0,0');
-        rPath.attr('stroke', '#FFC900');
+        rPath.attr('stroke', element.data.stroke);
         rPath.attr('stroke-width', 3);
         var objs = {
             path: rPath
@@ -16,7 +16,6 @@ annotatr.shapes['path'] = (function (annotatr, $, Raphael) {
 
     function update(element, objs) {
         //Transform the path according to its initial x,y
-
         //Find the min and max xy
         var minX, maxX,minY,maxY;
         minX = maxX = element.data.path[0][0];
@@ -40,6 +39,7 @@ annotatr.shapes['path'] = (function (annotatr, $, Raphael) {
             ]);
         }
         objs.path.attr({path:'M' + transformedScaledPath.join(',L')});
+        objs.path.attr({stroke: element.data.stroke});
     }
 
     function remove(objs) {

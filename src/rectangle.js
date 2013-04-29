@@ -6,8 +6,8 @@ annotatr.shapes['rectangle'] = (function (annotatr, $, Raphael) {
             element.data.x, element.data.y,
             element.data.width, element.data.height);
 
-        rectangle.attr('stroke', '#000000');
         rectangle.attr('stroke-width', 2);
+        rectangle.attr('stroke', '#000000');
 
         var objs = {
             rectangle: rectangle
@@ -23,6 +23,7 @@ annotatr.shapes['rectangle'] = (function (annotatr, $, Raphael) {
         objs.rectangle.attr('y', element.data.y);
         objs.rectangle.attr('width', element.data.width);
         objs.rectangle.attr('height', element.data.height);
+        objs.rectangle.attr({stroke: element.data.stroke});
     }
 
     function remove(objs) {

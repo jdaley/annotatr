@@ -113,7 +113,7 @@ annotatr.shapes['line'] = (function (annotatr, $, Raphael) {
     function draw(element, $container, paper) {
         var line = paper.path(getSvgPath(element));
 
-        line.attr('stroke', '#000000');
+        line.attr('stroke', element.data.stroke);
         line.attr('stroke-width', 2);
 
         var objs = {
@@ -126,6 +126,7 @@ annotatr.shapes['line'] = (function (annotatr, $, Raphael) {
     }
 
     function update(element, objs) {
+        objs.line.attr({stroke: element.data.stroke});
         objs.line.attr('path', getSvgPath(element));
     }
 

@@ -23,7 +23,7 @@ annotatr.shapes['oval'] = (function (annotatr, $, Raphael) {
             canvasCenter.x, canvasCenter.y,
             getHorizontalRadius(element), getVerticalRadius(element));
 
-        ellipse.attr('stroke', '#000000');
+        ellipse.attr('stroke', element.data.stroke);
         ellipse.attr('stroke-width', 2);
 
         var objs = {
@@ -42,6 +42,7 @@ annotatr.shapes['oval'] = (function (annotatr, $, Raphael) {
         objs.ellipse.attr('cy', canvasCenter.y);
         objs.ellipse.attr('rx', getHorizontalRadius(element));
         objs.ellipse.attr('ry', getVerticalRadius(element));
+        objs.ellipse.attr({stroke: element.data.stroke});
     }
 
     function remove(objs) {
