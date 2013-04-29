@@ -25,6 +25,7 @@ annotatr.Input = (function (annotatr, $) {
         this.maxY = path.data.y;
     }
 
+    // Draw a path
     MouseDrawOperation.prototype = {
         move: function (p) {
             this.path.data.path.push([p.x,p.y]);
@@ -133,6 +134,7 @@ annotatr.Input = (function (annotatr, $) {
                     y: p.y,
                     width: 0,
                     height: 0,
+                    stroke: '#000000',
                     path: [[p.x,p.y]]
                 };
                 var newPath = this.model.add(newShapeData);
@@ -147,7 +149,8 @@ annotatr.Input = (function (annotatr, $) {
                         x1: p.x,
                         y1: p.y,
                         x2: p.x,
-                        y2: p.y
+                        y2: p.y,
+                        stroke: '#000000' 
                     };
                 } else if (this.model.mode === 'arrow'){
                     newShapeData = {
@@ -156,7 +159,8 @@ annotatr.Input = (function (annotatr, $) {
                         y1: p.y,
                         x2: p.x,
                         y2: p.y,
-                        head: 'arrow'
+                        head: 'arrow',
+                        stroke: '#000000'
                     };
                 } else{
                     newShapeData = {
@@ -165,7 +169,8 @@ annotatr.Input = (function (annotatr, $) {
                         x: p.x,
                         y: p.y,
                         width: 0,
-                        height: 0
+                        height: 0,
+                        stroke: '#000000'
                     };
                 }
                 var newElement = this.model.add(newShapeData);
