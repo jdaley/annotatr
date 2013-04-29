@@ -4,13 +4,19 @@ annotatr.Input = (function (annotatr, $) {
     function MouseMoveOperation(model, selected, p) {
         this.model = model;
         this.selected = selected;
-        this.originalPos = selected.getPosition();
-        this.offset = annotatr.utils.subtract(p, this.originalPos);
+        this.originalPos = [];
+        this.offset = [];
+        for (var i = 0; i < this.selected.length; i++){
+            this.originalPos.push(this.selected[i].getPosition());   
+            this.offset[i] = annotatr.utils.subtract(p, this.originalPos[i]);
+        }
     }
 
     MouseMoveOperation.prototype = {
         move: function (p) {
-            this.selected.setPosition(annotatr.utils.subtract(p, this.offset));
+            for (var i = 0; i < this.selected.length; i++){
+                this.selected[i].setPosition(annotatr.utils.subtract(p, this.offset[i]));
+            }
         },
         up: function () { },
         cancel: function () {
@@ -119,12 +125,14 @@ annotatr.Input = (function (annotatr, $) {
             }
             var p = this.surface.fromPagePoint({ x: e.pageX, y: e.pageY });
             var hit = this.surface.getHit(p);
-            if (this.model.editing) {
-                if (this.model.editing === hit) {
-                    return;
-                } else {
-                    this.model.stopEditing();
+            if (this.model.editing.length > 0) {
+                for (var i = 0; i < this.model.editing; i++){
+                    if (this.model.editing[i] === hit) {
+                        return;
+                    }    
                 }
+
+                this.model.stopEditing();
             }
             e.preventDefault();
             if (this.model.mode === 'path'){
@@ -179,16 +187,16 @@ annotatr.Input = (function (annotatr, $) {
                 this.mouseOperation = new MouseResizeOperation(this.model, newElement, newElement.getPoints().length - 1, p, true);
             } else if (hit === null) {
                 this.model.selectNone();
-            } else if (hit === this.model.selected) {
+            } else if (this.model.selected.indexOf(hit) >= 0) {
                 var hitPoint = hit.getHitPoint(p);
                 if (hitPoint === null) {
-                    this.mouseOperation = new MouseMoveOperation(this.model, hit, p);
+                    this.mouseOperation = new MouseMoveOperation(this.model, this.model.selected, p);
                 } else {
                     this.mouseOperation = new MouseResizeOperation(this.model, hit, hitPoint, p, false);
                 }
             } else {
                 this.model.select(hit);
-                this.mouseOperation = new MouseMoveOperation(this.model, hit, p);
+                this.mouseOperation = new MouseMoveOperation(this.model, this.model.selected, p);
             }
         },
         mouseUp: function (e) {

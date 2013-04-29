@@ -13,8 +13,8 @@ annotatr.Model = (function (annotatr, $) {
         this.data = data || [];
         this.elements = [];
         this.elementsChanged = $.Callbacks();
-        this.selected = null;
-        this.editing = null;
+        this.selected = [];
+        this.editing = [];
 
         for (var i = 0; i < this.data.length; i++) {
             this.elements.push(createElement(this.data[i]));
@@ -43,30 +43,52 @@ annotatr.Model = (function (annotatr, $) {
             }
         },
         select: function (element) {
-            if (element !== this.selected) {
-                this.selectNone();
-                this.selected = element;
+            var found = false;
+            // If the element is in the selected array, remove it.
+            for (var i = 0; i < this.selected.length; i++){
+                if (element === this.selected[i]){
+                    found = true;
+                    // Remove the element, and set its selected = false
+                    this.selected.splice(i,1)[0].setSelected(false);
+                }
+            }
+
+            if (!found)
+            {
+                this.selected.push(element);
                 element.setSelected(true);
             }
         },
         selectNone: function () {
-            if (this.selected) {
-                this.selected.setSelected(false);
-                this.selected = null;
+
+            while (this.selected && this.selected.length > 0){
+                this.selected[this.selected.length - 1].setSelected(false);
+                this.selected.splice(this.selected.length - 1,1);
             }
         },
         startEditing: function (element) {
-            if (element !== this.editing) {
-                this.stopEditing();
-                this.editing = element;
+            var found = false;
+            // If the element is in the editing array, remove it.
+            for (var i = 0; i < this.editing.length; i++){
+                if (element === this.editing[i]){
+                    found = true;
+                    // Remove the element, and set its editing = false
+                    element.setEditing(false);
+                    this.editing.splice(i,1);
+                }
+            }
+
+            if (!found)
+            {
+                this.editing.push(element);
                 element.setEditing(true);
             }
         },
         stopEditing: function () {
-            if (this.editing) {
-                this.editing.setEditing(false);
-                this.editing = null;
-            }
+            while (this.editing && this.editing.length > 0){
+                var elements = this.editing.splice(this.editing.length - 1,1);
+                elements[0].setEditing(false)
+            }       
         }
     };
 
