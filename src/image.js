@@ -30,6 +30,7 @@ annotatr.shapes['image'] = (function (utils, $) {
         objs.border.attr('y', element.data.y);
         objs.border.attr('width', element.data.width);
         objs.border.attr('height', element.data.height);
+        objs.border.attr('stroke', element.data.stroke);
     }
 
     function remove(objs) {
