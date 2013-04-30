@@ -60,7 +60,6 @@ annotatr.Model = (function (annotatr, $) {
             }
         },
         selectNone: function () {
-
             while (this.selected && this.selected.length > 0){
                 this.selected[this.selected.length - 1].setSelected(false);
                 this.selected.splice(this.selected.length - 1,1);
@@ -91,6 +90,5 @@ annotatr.Model = (function (annotatr, $) {
             }       
         }
     };
-
     return Model;
 })(annotatr, window.jQuery);
