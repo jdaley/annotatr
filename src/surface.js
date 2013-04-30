@@ -132,6 +132,7 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
                 var element = this.model.elements[i];
                 if (element.selected && element.formatBar.isHit(p)){
                     element.data.stroke = '#FF00FF';
+                    element.fireChanged();
                     return element;
                 }
                 if (element.isHit(p)) {
