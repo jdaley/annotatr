@@ -11,7 +11,7 @@ annotatr.utils = (function () {
     function sqr(x) { return x * x; }
 
     function distanceSqr(v, w) { return sqr(v.x - w.x) + sqr(v.y - w.y); }
-    
+
     function distance(v, w) { return Math.sqrt(distanceSqr(v, w)); }
 
     function distanceToLine(p, v, w) {

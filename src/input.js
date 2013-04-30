@@ -150,7 +150,7 @@ annotatr.Input = (function (annotatr, $) {
                         y1: p.y,
                         x2: p.x,
                         y2: p.y,
-                        stroke: '#000000' 
+                        stroke: '#000000'
                     };
                 } else if (this.model.mode === 'arrow'){
                     newShapeData = {

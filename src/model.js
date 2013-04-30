@@ -2,11 +2,7 @@ annotatr.Model = (function (annotatr, $) {
     'use strict';
 
     function createElement(data) {
-        if (data.type === 'line') {
-            return new annotatr.Line(data);
-        } else {
-            return new annotatr.Shape(data);
-        }
+        return new annotatr.elementTypes[data.type](data);
     }
 
     function Model(data) {

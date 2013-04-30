@@ -1,45 +1,46 @@
-annotatr.shapes['image'] = (function (utils, $) {
+annotatr.elementTypes['image'] = (function (utils, $) {
     'use strict';
 
-    function draw(element, $container, paper) {
-        var image = paper.image(element.data.src,
-            element.data.x, element.data.y,
-            element.data.width, element.data.height);
-
-        var border = paper.rect(
-            element.data.x, element.data.y,
-            element.data.width, element.data.height);
-
-        var objs = {
-            image: image,
-            border: border
-        };
-
-        update(element, objs);
-
-        return objs;
+    function Image(data, model) {
+        annotatr.Element.call(this, data, model);
     }
 
-    function update(element, objs) {
-        objs.image.attr('x', element.data.x);
-        objs.image.attr('y', element.data.y);
-        objs.image.attr('width', element.data.width);
-        objs.image.attr('height', element.data.height);
+    Image.prototype = $.extend(new annotatr.Element(), {
+        draw: function ($container, paper) {
+            var image = paper.image(this.data.src,
+                this.data.x, this.data.y,
+                this.data.width, this.data.height);
 
-        objs.border.attr('x', element.data.x);
-        objs.border.attr('y', element.data.y);
-        objs.border.attr('width', element.data.width);
-        objs.border.attr('height', element.data.height);
-    }
+            var border = paper.rect(
+                this.data.x, this.data.y,
+                this.data.width, this.data.height);
 
-    function remove(objs) {
-        objs.image.remove();
-        objs.border.remove();
-    }
+            var objs = {
+                image: image,
+                border: border
+            };
 
-    return {
-        draw: draw,
-        update: update,
-        remove: remove
-    };
+            this.update(objs);
+
+            return objs;
+        },
+        update: function (objs) {
+            objs.image.attr('x', this.data.x);
+            objs.image.attr('y', this.data.y);
+            objs.image.attr('width', this.data.width);
+            objs.image.attr('height', this.data.height);
+
+            objs.border.attr('x', this.data.x);
+            objs.border.attr('y', this.data.y);
+            objs.border.attr('width', this.data.width);
+            objs.border.attr('height', this.data.height);
+        },
+        remove: function (objs) {
+            objs.image.remove();
+            objs.border.remove();
+
+        }
+    });
+
+    return Image;
 }(annotatr.utils, window.jQuery));

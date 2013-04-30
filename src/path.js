@@ -1,54 +1,54 @@
-annotatr.shapes['path'] = (function (annotatr, $, Raphael) {
+annotatr.elementTypes['path'] = (function (annotatr, $, Raphael) {
     'use strict';
 
-    function draw(element, $container, paper) {
-        var rPath = paper.path('M0,0');
-        rPath.attr('stroke', element.data.stroke);
-        rPath.attr('stroke-width', 3);
-        var objs = {
-            path: rPath
-        };
-
-        update(element, objs);
-
-        return objs;
+    function Path(data, model) {
+        annotatr.Element.call(this, data, model);
     }
 
-    function update(element, objs) {
-        //Transform the path according to its initial x,y
-        //Find the min and max xy
-        var minX, maxX,minY,maxY;
-        minX = maxX = element.data.path[0][0];
-        minY = maxY = element.data.path[0][1];
-        for(var i = 1; i < element.data.path.length; i++){
-            minX = Math.min(minX, element.data.path[i][0]);
-            minY = Math.min(minY, element.data.path[i][1]);
-            maxX = Math.max(maxX, element.data.path[i][0]);
-            maxY = Math.max(maxY, element.data.path[i][1]);
+    Path.prototype = $.extend(new annotatr.Element(), {
+        draw: function ($container, paper) {
+            var rPath = paper.path('M0,0');
+            rPath.attr('stroke', this.data.stroke);
+            rPath.attr('stroke-width', 3);
+            var objs = {
+                path: rPath
+            };
+
+            this.update(objs);
+
+            return objs;
+        },
+        update: function (objs) {
+            //Transform the path according to its initial x,y
+            //Find the min and max xy
+            var minX, maxX,minY,maxY;
+            minX = maxX = this.data.path[0][0];
+            minY = maxY = this.data.path[0][1];
+            for(var i = 1; i < this.data.path.length; i++){
+                minX = Math.min(minX, this.data.path[i][0]);
+                minY = Math.min(minY, this.data.path[i][1]);
+                maxX = Math.max(maxX, this.data.path[i][0]);
+                maxY = Math.max(maxY, this.data.path[i][1]);
+            }
+
+            var scaleX, scaleY;
+            scaleX = (this.data.width / (maxX - minX)) || 11;
+            scaleY = (this.data.height / (maxY - minY)) || 13;
+
+            var transformedScaledPath = [];
+            for(i = 0; i < this.data.path.length; i++){
+                transformedScaledPath.push([
+                    (this.data.path[i][0]-minX)*scaleX + this.data.x,
+                    (this.data.path[i][1]-minY)*scaleY + this.data.y
+                ]);
+            }
+            objs.path.attr({path:'M' + transformedScaledPath.join(',L')});
+            objs.path.attr({stroke: this.data.stroke});
+        },
+        remove: function (objs) {
+            objs.path.remove();
         }
+    });
 
-        var scaleX, scaleY;
-        scaleX = (element.data.width / (maxX - minX)) || 11;
-        scaleY = (element.data.height / (maxY - minY)) || 13;
-
-        var transformedScaledPath = [];
-        for(i = 0; i < element.data.path.length; i++){
-            transformedScaledPath.push([
-                (element.data.path[i][0]-minX)*scaleX + element.data.x,
-                (element.data.path[i][1]-minY)*scaleY + element.data.y
-            ]);
-        }
-        objs.path.attr({path:'M' + transformedScaledPath.join(',L')});
-        objs.path.attr({stroke: element.data.stroke});
-    }
-
-    function remove(objs) {
-        objs.path.remove();
-    }
-
-    return {
-        draw: draw,
-        update: update,
-        remove: remove
-    };
+    return Path;
 }(annotatr, window.jQuery, Raphael));

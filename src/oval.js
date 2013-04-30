@@ -1,4 +1,4 @@
-annotatr.shapes['oval'] = (function (annotatr, $, Raphael) {
+annotatr.elementTypes['oval'] = (function (annotatr, $, Raphael) {
     'use strict';
 
     function getCenter(element) {
@@ -16,42 +16,42 @@ annotatr.shapes['oval'] = (function (annotatr, $, Raphael) {
         return element.data.height / 2.0;
     }
 
-    function draw(element, $container, paper) {
-        var canvasCenter = getCenter(element);
-
-        var ellipse = paper.ellipse(
-            canvasCenter.x, canvasCenter.y,
-            getHorizontalRadius(element), getVerticalRadius(element));
-
-        ellipse.attr('stroke', element.data.stroke);
-        ellipse.attr('stroke-width', 2);
-
-        var objs = {
-            ellipse: ellipse
-        };
-
-        update(element, objs);
-
-        return objs;
+    function Oval(data, model) {
+        annotatr.Element.call(this, data, model);
     }
 
-    function update(element, objs) {
-        var canvasCenter = getCenter(element);
+    Oval.prototype = $.extend(new annotatr.Element(), {
+        draw: function ($container, paper) {
+            var canvasCenter = getCenter(this);
 
-        objs.ellipse.attr('cx', canvasCenter.x);
-        objs.ellipse.attr('cy', canvasCenter.y);
-        objs.ellipse.attr('rx', getHorizontalRadius(element));
-        objs.ellipse.attr('ry', getVerticalRadius(element));
-        objs.ellipse.attr({stroke: element.data.stroke});
-    }
+            var ellipse = paper.ellipse(
+                canvasCenter.x, canvasCenter.y,
+                getHorizontalRadius(this), getVerticalRadius(this));
 
-    function remove(objs) {
-        objs.ellipse.remove();
-    }
+            ellipse.attr('stroke', this.data.stroke);
+            ellipse.attr('stroke-width', 2);
 
-    return {
-        draw: draw,
-        update: update,
-        remove: remove
-    };
+            var objs = {
+                ellipse: ellipse
+            };
+
+            this.update(objs);
+
+            return objs;
+        },
+        update: function (objs) {
+            var canvasCenter = getCenter(this);
+
+            objs.ellipse.attr('cx', canvasCenter.x);
+            objs.ellipse.attr('cy', canvasCenter.y);
+            objs.ellipse.attr('rx', getHorizontalRadius(this));
+            objs.ellipse.attr('ry', getVerticalRadius(this));
+            objs.ellipse.attr({stroke: this.data.stroke});
+        },
+        remove: function (objs) {
+            objs.ellipse.remove();
+        }
+    });
+
+    return Oval;
 }(annotatr, window.jQuery, Raphael));

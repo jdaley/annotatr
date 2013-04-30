@@ -1,38 +1,38 @@
-annotatr.shapes['rectangle'] = (function (annotatr, $, Raphael) {
+annotatr.elementTypes['rectangle'] = (function (annotatr, $, Raphael) {
     'use strict';
 
-    function draw(element, $container, paper) {
-        var rectangle = paper.rect(
-            element.data.x, element.data.y,
-            element.data.width, element.data.height);
-
-        rectangle.attr('stroke-width', 2);
-        rectangle.attr('stroke', '#000000');
-
-        var objs = {
-            rectangle: rectangle
-        };
-
-        update(element, objs);
-
-        return objs;
+    function Rectangle(data, model) {
+        annotatr.Element.call(this, data, model);
     }
 
-    function update(element, objs) {
-        objs.rectangle.attr('x', element.data.x);
-        objs.rectangle.attr('y', element.data.y);
-        objs.rectangle.attr('width', element.data.width);
-        objs.rectangle.attr('height', element.data.height);
-        objs.rectangle.attr({stroke: element.data.stroke});
-    }
+    Rectangle.prototype = $.extend(new annotatr.Element(), {
+        draw: function ($container, paper) {
+            var rectangle = paper.rect(
+                this.data.x, this.data.y,
+                this.data.width, this.data.height);
 
-    function remove(objs) {
-        objs.rectangle.remove();
-    }
+            rectangle.attr('stroke-width', 2);
+            rectangle.attr('stroke', '#000000');
 
-    return {
-        draw: draw,
-        update: update,
-        remove: remove
-    };
+            var objs = {
+                rectangle: rectangle
+            };
+
+            this.update(objs);
+
+            return objs;
+        },
+        update: function (objs) {
+            objs.rectangle.attr('x', this.data.x);
+            objs.rectangle.attr('y', this.data.y);
+            objs.rectangle.attr('width', this.data.width);
+            objs.rectangle.attr('height', this.data.height);
+            objs.rectangle.attr({stroke: this.data.stroke});
+        },
+        remove: function (objs) {
+            objs.rectangle.remove();
+        }
+    });
+
+    return Rectangle;
 }(annotatr, window.jQuery, Raphael));

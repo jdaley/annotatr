@@ -42,6 +42,6 @@ annotatr = (function ($) {
     };
 
     annotatr.Annotatr = Annotatr;
-    annotatr.shapes = {};
+    annotatr.elementTypes = {};
     return annotatr;
 }(window.jQuery));
