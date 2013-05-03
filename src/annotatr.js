@@ -43,18 +43,12 @@ annotatr = (function ($) {
                 var mode = $this.attr('data-annotatr');
                 $this.click(function () {
                     if (mode == 'leftAlign'){
-                        if (model.selected && model.selected[0].data.type !== 'line'){
-                            var x = model.selected[0].data.x;
+                        if (model.selected.length/* && model.selected[0].data.type !== 'line'*/){
+                            var p = {};
+                            p.x = model.selected[0].getPosition().x;
                             for( var i = 1; i < model.selected.length; i++){                                    
-                                model.selected[i].data.x = x;
-                            }
-
-                            for (i = 0; i < surface.objs.length; i++){
-                                var element = surface.objs[i].element;
-                                if (element.selected) {
-                                    element.data.x = x;
-                                    element.fireChanged();
-                                }
+                                p.y = model.selected[i].getPosition().y;
+                                model.selected[i].setPosition(p);
                             }
                         }
                     }
