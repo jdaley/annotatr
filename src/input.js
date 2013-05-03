@@ -230,8 +230,11 @@ annotatr.Input = (function (annotatr, $) {
                 }
             }
             if (e.keyCode === 46) { // delete
-                if (this.model.selected) {
-                    this.model.remove(this.model.selected);
+                var selected = this.model.selected;
+                if (selected) {
+                    for (var i = 0; i < selected.length; i++){
+                            this.model.remove(selected[i]);
+                        }
                 }
             }
         }
