@@ -11,6 +11,10 @@ annotatr = (function ($) {
         if (options.$toolbar) {
             this.addToolbar(options.$toolbar);
         }
+
+        if (options.$formatbar) {
+            this.addFormatbar(options.$formatbar, this.surface);
+        }
     }
 
     Annotatr.prototype = {
@@ -28,6 +32,31 @@ annotatr = (function ($) {
                         model.mode = null;
                     } else {
                         model.mode = mode;
+                    }
+                });
+            });
+        },
+        addFormatbar: function ($formatbar, surface) {
+            var model = this.model;
+            $('[data-annotatr]', $formatbar).each(function () {
+                var $this = $(this);
+                var mode = $this.attr('data-annotatr');
+                $this.click(function () {
+                    if (mode == 'leftAlign'){
+                        if (model.selected && model.selected[0].data.type !== 'line'){
+                            var x = model.selected[0].data.x;
+                            for( var i = 1; i < model.selected.length; i++){                                    
+                                model.selected[i].data.x = x;
+                            }
+
+                            for (i = 0; i < surface.objs.length; i++){
+                                var element = surface.objs[i].element;
+                                if (element.selected) {
+                                    element.data.x = x;
+                                    element.fireChanged();
+                                }
+                            }
+                        }
                     }
                 });
             });
