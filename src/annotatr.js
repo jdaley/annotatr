@@ -51,17 +51,37 @@ annotatr = (function ($) {
                         if (model.selected.length){
                             var p = {};
                             p.x = model.selected[0].getPosition().x;
-                            for( var i = 1; i < model.selected.length; i++){                                    
+                            for( var i = 1; i < model.selected.length; i++) {
                                 p.y = model.selected[i].getPosition().y;
                                 model.selected[i].setPosition(p);
                             }
                         }
-                    } else if (mode == 'rightAlign'){
-                        if (model.selected.length){
+                    } else if (mode == 'rightAlign') {
+                        if (model.selected.length) {
                             var p = {};
                             var rightEdge = model.selected[0].getWidth() + model.selected[0].getPosition().x;
-                            for( var i = 1; i < model.selected.length; i++){                                    
-                                p.x = rightEdge - model.selected[i].getWidth();                                p.y = model.selected[i].getPosition().y;
+                            for( var i = 1; i < model.selected.length; i++){
+                                p.x = rightEdge - model.selected[i].getWidth();
+                                p.y = model.selected[i].getPosition().y;
+                                model.selected[i].setPosition(p);
+                            }
+                        }
+                    } else if (mode == 'topAlign') {
+                        if (model.selected.length) {
+                            var p = {};
+                            p.y = model.selected[0].getPosition().y;
+                            for( var i = 1; i < model.selected.length; i++) {
+                                p.x = model.selected[i].getPosition().x;
+                                model.selected[i].setPosition(p);
+                            }
+                        }
+                    } else if (mode == 'bottomAlign') {
+                        if (model.selected.length) {
+                            var p = {};
+                            var bottomEdge = model.selected[0].getHeight() + model.selected[0].getPosition().y;
+                            for( var i = 1; i < model.selected.length; i++) {
+                                p.y = bottomEdge - model.selected[i].getHeight();
+                                p.x = model.selected[i].getPosition().x;
                                 model.selected[i].setPosition(p);
                             }
                         }

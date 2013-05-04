@@ -19,6 +19,10 @@ annotatr.Line = (function (annotatr, $) {
             return Math.max(this.data.x1, this.data.x2)
             - Math.min(this.data.x1, this.data.x2);
         },
+        getHeight: function() {
+            return Math.max(this.data.y1, this.data.y2)
+            - Math.min(this.data.y1, this.data.y2);
+        },
         setPosition: function (p) {
             var delta = annotatr.utils.subtract(p, this.getPosition());
             this.data.x1 += delta.x;
