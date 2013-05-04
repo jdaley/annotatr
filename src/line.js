@@ -15,13 +15,17 @@ annotatr.Line = (function (annotatr, $) {
                 y: Math.min(this.data.y1, this.data.y2)
             };
         },
-        getWidth: function() {
+        getWidth: function () {
             return Math.max(this.data.x1, this.data.x2)
-            - Math.min(this.data.x1, this.data.x2);
+                - Math.min(this.data.x1, this.data.x2);
         },
-        getHeight: function() {
+        getHeight: function () {
             return Math.max(this.data.y1, this.data.y2)
-            - Math.min(this.data.y1, this.data.y2);
+                - Math.min(this.data.y1, this.data.y2);
+        },
+        setStroke: function (stroke) {
+            this.data.stroke = stroke;
+            this.changed.fire(this);
         },
         setPosition: function (p) {
             var delta = annotatr.utils.subtract(p, this.getPosition());

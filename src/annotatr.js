@@ -43,48 +43,65 @@ annotatr = (function ($) {
         },
         addFormatbar: function ($formatbar, surface) {
             var model = this.model;
+            $('#strokeColor').colorPicker( {
+            onColorChange : function(id, strokeColor) {
+                for (var i = 0; i < model.selected.length; i++) {
+                                model.selected[i].setStroke(strokeColor);
+                }
+            }});
             $('[data-annotatr]', $formatbar).each(function () {
                 var $this = $(this);
                 var mode = $this.attr('data-annotatr');
                 $this.click(function () {
-                    if (mode == 'leftAlign'){
-                        if (model.selected.length){
-                            var p = {};
-                            p.x = model.selected[0].getPosition().x;
-                            for( var i = 1; i < model.selected.length; i++) {
-                                p.y = model.selected[i].getPosition().y;
-                                model.selected[i].setPosition(p);
+                    switch(mode){
+                        case 'leftAlign':
+                            if (model.selected.length)
+                                var p = {};
+                                p.x = model.selected[0].getPosition().x;
+                                for( var i = 1; i < model.selected.length; i++) {
+                                    p.y = model.selected[i].getPosition().y;
+                                    model.selected[i].setPosition(p);
+                                }
+                            break;
+                        case 'rightAlign':
+                            if (model.selected.length) {
+                                var p = {};
+                                var rightEdge = model.selected[0].getWidth() + model.selected[0].getPosition().x;
+                                for( var i = 1; i < model.selected.length; i++){
+                                    p.x = rightEdge - model.selected[i].getWidth();
+                                    p.y = model.selected[i].getPosition().y;
+                                    model.selected[i].setPosition(p);
+                                }
                             }
-                        }
-                    } else if (mode == 'rightAlign') {
-                        if (model.selected.length) {
-                            var p = {};
-                            var rightEdge = model.selected[0].getWidth() + model.selected[0].getPosition().x;
-                            for( var i = 1; i < model.selected.length; i++){
-                                p.x = rightEdge - model.selected[i].getWidth();
-                                p.y = model.selected[i].getPosition().y;
-                                model.selected[i].setPosition(p);
+                            break;
+                        case 'topAlign':
+                            if (model.selected.length) {
+                                var p = {};
+                                p.y = model.selected[0].getPosition().y;
+                                for( var i = 1; i < model.selected.length; i++) {
+                                    p.x = model.selected[i].getPosition().x;
+                                    model.selected[i].setPosition(p);
+                                }
                             }
-                        }
-                    } else if (mode == 'topAlign') {
-                        if (model.selected.length) {
-                            var p = {};
-                            p.y = model.selected[0].getPosition().y;
-                            for( var i = 1; i < model.selected.length; i++) {
-                                p.x = model.selected[i].getPosition().x;
-                                model.selected[i].setPosition(p);
+                            break;
+                        case 'bottomAlign':
+                            if (model.selected.length) {
+                                var p = {};
+                                var bottomEdge = model.selected[0].getHeight() + model.selected[0].getPosition().y;
+                                for( var i = 1; i < model.selected.length; i++) {
+                                    p.y = bottomEdge - model.selected[i].getHeight();
+                                    p.x = model.selected[i].getPosition().x;
+                                    model.selected[i].setPosition(p);
+                                }
                             }
-                        }
-                    } else if (mode == 'bottomAlign') {
-                        if (model.selected.length) {
-                            var p = {};
-                            var bottomEdge = model.selected[0].getHeight() + model.selected[0].getPosition().y;
-                            for( var i = 1; i < model.selected.length; i++) {
-                                p.y = bottomEdge - model.selected[i].getHeight();
-                                p.x = model.selected[i].getPosition().x;
-                                model.selected[i].setPosition(p);
-                            }
-                        }
+                            break;
+                        // case 'strokeColor':
+                        //     for (var i = 0; i < model.selected.length; i++) {
+                        //         model.selected[i].setStroke('#FF0000');
+                        //     }
+                        //     break;
+                        default:
+                            break;
                     }
                 });
             });

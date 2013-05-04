@@ -24,6 +24,10 @@ annotatr.Shape = (function (annotatr, $) {
             this.data.y = p.y;
             this.changed.fire(this);
         },
+        setStroke: function(stroke) {
+            this.data.stroke = stroke;
+            this.changed.fire(this);
+        },
         isHit: function (p) {
             return p.x >= this.data.x &&
                 p.x <= this.data.x + this.data.width &&

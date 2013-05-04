@@ -14,11 +14,12 @@
         <button data-annotatr="rectangle">Rectangle</button>
     </div>
 
-    <div id="demo-annotator-formatbar">
+    <div id="demo-annotator-formatbar" >
         <button data-annotatr="leftAlign">Left</button>
         <button data-annotatr="rightAlign">Right</button>
         <button data-annotatr="topAlign">Top</button>
         <button data-annotatr="bottomAlign">Bottom</button>
+        <input data-annotatr="strokeColor" id="strokeColor" type="text" name="strokeColor" value="#FF0000"/>
     </div>
 
     <div id="demo-annotator" style="width: 800px; height: 600px"></div>
@@ -37,6 +38,7 @@
     <script src="src/surface.js"></script>
     <script src="src/text.js"></script>
     <script src="src/utils.js"></script>
+    <script src="libraries/jquery.colorPicker.js"></script>
 
     <script>
         $(function () {
