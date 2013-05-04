@@ -43,9 +43,7 @@ annotatr.Input = (function (annotatr, $) {
             this.path.data.height = this.maxY - this.path.data.y;
             this.path.fireChanged();
         },
-        up: function () {
-            this.model.mode = 'path';
-        },
+        up: function () {},
         cancel: function () {
             this.model.remove(this.path);
         }
@@ -146,7 +144,14 @@ annotatr.Input = (function (annotatr, $) {
                     path: [[p.x,p.y]]
                 };
                 var newPath = this.model.add(newShapeData);
-                this.model.mode = null;
+                if (this.model.mode && this.model.repeatMode){
+                    this.model.mode = 'path';
+                    this.model.repeatMode = true;
+                }
+                else{
+                    this.model.mode = null;
+                    this.model.repeatMode = false;
+                }
                 this.model.selectNone();
                 this.mouseOperation = new MouseDrawOperation(this.model, newPath);
             } else if (this.model.mode) {

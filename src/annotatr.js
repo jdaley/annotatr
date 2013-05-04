@@ -33,6 +33,10 @@ annotatr = (function ($) {
                     } else {
                         model.mode = mode;
                     }
+                }),
+                $this.dblclick(function () {
+                    model.mode = mode;
+                    model.repeatMode = true;
                 });
             });
         },
@@ -60,7 +64,6 @@ annotatr = (function ($) {
                                 model.selected[i].setPosition(p);
                             }
                         }
-
                     }
                 });
             });
