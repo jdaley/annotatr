@@ -13,6 +13,9 @@ annotatr.Shape = (function (annotatr, $) {
         getPosition: function () {
             return { x: this.data.x, y: this.data.y };
         },
+        getWidth: function() {
+            return this.data.width;
+        },
         setPosition: function (p) {
             this.data.x = p.x;
             this.data.y = p.y;

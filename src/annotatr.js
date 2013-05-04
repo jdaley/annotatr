@@ -43,7 +43,7 @@ annotatr = (function ($) {
                 var mode = $this.attr('data-annotatr');
                 $this.click(function () {
                     if (mode == 'leftAlign'){
-                        if (model.selected.length/* && model.selected[0].data.type !== 'line'*/){
+                        if (model.selected.length){
                             var p = {};
                             p.x = model.selected[0].getPosition().x;
                             for( var i = 1; i < model.selected.length; i++){                                    
@@ -51,6 +51,16 @@ annotatr = (function ($) {
                                 model.selected[i].setPosition(p);
                             }
                         }
+                    } else if (mode == 'rightAlign'){
+                        if (model.selected.length){
+                            var p = {};
+                            var rightEdge = model.selected[0].getWidth() + model.selected[0].getPosition().x;
+                            for( var i = 1; i < model.selected.length; i++){                                    
+                                p.x = rightEdge - model.selected[i].getWidth();                                p.y = model.selected[i].getPosition().y;
+                                model.selected[i].setPosition(p);
+                            }
+                        }
+
                     }
                 });
             });
