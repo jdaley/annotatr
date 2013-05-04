@@ -194,7 +194,8 @@ annotatr.Input = (function (annotatr, $) {
                 this.mouseOperation = new MouseResizeOperation(this.model, newElement, newElement.getPoints().length - 1, p, true);
             } else if (hit === null) {
                 this.model.selectNone();
-            } else if (this.model.selected.indexOf(hit) >= 0) {
+            } else if (this.model.selected.indexOf(hit) >= 0 &&
+                ! e.ctrlKey) {
                 var hitPoint = hit.getHitPoint(p);
                 if (hitPoint === null) {
                     this.mouseOperation = new MouseMoveOperation(this.model, this.model.selected, p);
@@ -202,7 +203,12 @@ annotatr.Input = (function (annotatr, $) {
                     this.mouseOperation = new MouseResizeOperation(this.model, hit, hitPoint, p, false);
                 }
             } else {
-                this.model.select(hit);
+                if (e.ctrlKey) {
+                    this.model.select(hit);
+                } else {
+                    this.model.selectNone();
+                    this.model.select(hit);
+                }
                 this.mouseOperation = new MouseMoveOperation(this.model, this.model.selected, p);
             }
         },
