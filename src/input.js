@@ -187,7 +187,9 @@ annotatr.Input = (function (annotatr, $) {
                     };
                 }
                 var newElement = this.model.add(newShapeData);
-                this.model.mode = null;
+                if (!this.model.repeatMode){
+                    this.model.mode = null;
+                }
                 this.model.select(newElement);
                 this.mouseOperation = new MouseResizeOperation(this.model, newElement, newElement.getPoints().length - 1, p, true);
             } else if (hit === null) {

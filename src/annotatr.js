@@ -30,6 +30,7 @@ annotatr = (function ($) {
                 $this.click(function () {
                     if (model.mode === mode) {
                         model.mode = null;
+                        model.repeatMode = false;
                     } else {
                         model.mode = mode;
                     }
