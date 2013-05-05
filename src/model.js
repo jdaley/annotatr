@@ -114,6 +114,48 @@ annotatr.Model = (function (annotatr, $) {
                     this.add(data[i]);
                 }
             }
+        },
+        bringToFront: function () {
+            var moveTo = this.elements.length - 1;
+            for (var i = this.elements.length - 1; i >= 0; i--) {
+                if (this.elements[i].selected) {
+                    this.shiftElementIndex(i, moveTo);
+                    moveTo--;
+                }
+            }
+            this.elementsChanged.fire();
+        },
+        bringForward: function () {
+            for (var i = this.elements.length - 2; i >= 0; i--) {
+                if (this.elements[i].selected &&
+                        !this.elements[i + 1].selected) {
+                    this.shiftElementIndex(i, i + 1);
+                }
+            }
+            this.elementsChanged.fire();
+        },
+        sendBackward: function () {
+            for (var i = 1; i < this.elements.length; i++) {
+                if (this.elements[i].selected &&
+                        !this.elements[i - 1].selected) {
+                    this.shiftElementIndex(i, i - 1);
+                }
+            }
+            this.elementsChanged.fire();
+        },
+        sendToBack: function () {
+            var moveTo = 0;
+            for (var i = 0; i < this.elements.length; i++) {
+                if (this.elements[i].selected) {
+                    this.shiftElementIndex(i, moveTo);
+                    moveTo++;
+                }
+            }
+            this.elementsChanged.fire();
+        },
+        shiftElementIndex: function (from, to) {
+            this.data.splice(to, 0, this.data.splice(from, 1)[0]);
+            this.elements.splice(to, 0, this.elements.splice(from, 1)[0]);
         }
     };
     return Model;

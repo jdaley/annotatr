@@ -45,6 +45,14 @@ annotatr = (function ($) {
                         clipboard.copy();
                     } else if (mode === 'paste') {
                         clipboard.paste();
+                    } else if (mode === 'bring-to-front') {
+                        model.bringToFront();
+                    } else if (mode === 'bring-forward') {
+                        model.bringForward();
+                    } else if (mode === 'send-backward') {
+                        model.sendBackward();
+                    } else if (mode === 'send-to-back') {
+                        model.sendToBack();
                     } else {
                         model.mode = mode;
                     }

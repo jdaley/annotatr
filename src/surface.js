@@ -160,46 +160,39 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
         update: function () {
             var i = 0;
 
-            while (i < this.objs.length) {
-                var toDelete = true;
+            for (i = 0; i < this.objs.length; i++) {
                 var obj = this.objs[i];
-                for (var j = 0; j < this.model.elements.length; j++) {
-                    if (obj.element === this.model.elements[j]) {
-                        toDelete = false;
-                    }
-                }
 
-                if (toDelete) {
-                    annotatr.shapes[obj.element.data.type].remove(obj.renderObjs);
-                    removeSelect(obj.selectObjs);
-                    this.objs.splice(i, 1);
-                } else {
-                    i++;
-                }
+                obj.element.changed.remove(obj.updateHandler);
+                annotatr.shapes[obj.element.data.type].remove(obj.renderObjs);
+                removeSelect(obj.selectObjs);
             }
+
+            this.objs.splice(0, this.objs.length);
 
             for (i = 0; i < this.model.elements.length; i++) {
                 var element = this.model.elements[i];
 
-                if (!this.getRenderObjs(element)) {
-                    var renderObjs = annotatr.shapes[element.data.type].draw(
-                        element, this.$container, this.renderPaper);
+                var renderObjs = annotatr.shapes[element.data.type].draw(
+                    element, this.$container, this.renderPaper);
 
-                    var selectObjs = drawSelect(element, this.selectPaper);
+                var selectObjs = drawSelect(element, this.selectPaper);
 
-                    this.objs.push({
-                        element: element,
-                        renderObjs: renderObjs,
-                        selectObjs: selectObjs
-                    });
+                var self = this;
+                var updateHandler = function (element) {
+                    var renderer = annotatr.shapes[element.data.type];
+                    renderer.update(element, self.getRenderObjs(element));
+                    updateSelect(element, self.getSelectObjs(element));
+                };
 
-                    var self = this;
-                    element.changed.add(function (element) {
-                        var renderer = annotatr.shapes[element.data.type];
-                        renderer.update(element, self.getRenderObjs(element));
-                        updateSelect(element, self.getSelectObjs(element));
-                    });
-                }
+                this.objs.push({
+                    element: element,
+                    renderObjs: renderObjs,
+                    selectObjs: selectObjs,
+                    updateHandler: updateHandler
+                });
+
+                element.changed.add(updateHandler);
             }
         }
     };
