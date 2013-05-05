@@ -6,6 +6,7 @@ annotatr = (function ($) {
     function Annotatr($container, options) {
         this.undo = new annotatr.Undo();
         this.model = new annotatr.Model(options.data, this.undo);
+        this.clipboard = new annotatr.Clipboard(this.model);
         this.surface = new annotatr.Surface($container, this.model, options.width, options.height);
         this.input = new annotatr.Input(this.model, this.surface);
 
@@ -24,6 +25,7 @@ annotatr = (function ($) {
             this.surface.dispose();
         },
         addToolbar: function ($toolbar) {
+            var clipboard = this.clipboard;
             var model = this.model;
             var undo = this.undo;
             $('[data-annotatr]', $toolbar).each(function () {
@@ -37,6 +39,12 @@ annotatr = (function ($) {
                         undo.undo();
                     } else if (mode === 'redo') {
                         undo.redo();
+                    } else if (mode === 'cut') {
+                        clipboard.cut();
+                    } else if (mode === 'copy') {
+                        clipboard.copy();
+                    } else if (mode === 'paste') {
+                        clipboard.paste();
                     } else {
                         model.mode = mode;
                     }

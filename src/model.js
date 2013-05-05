@@ -92,6 +92,28 @@ annotatr.Model = (function (annotatr, $) {
                 var elements = this.editing.splice(this.editing.length - 1,1);
                 elements[0].setEditing(false)
             }       
+        },
+        cut: function () {
+            var data = this.copy();
+            var selected = this.getSelected();
+            for (var i = 0; i < selected.length; i++) {
+                this.remove(selected[i]);
+            }
+            return data;
+        },
+        copy: function () {
+            var data = this.getSelected().map(function (element) {
+                return element.data;
+            });
+            return JSON.stringify(data);
+        },
+        paste: function (dataString) {
+            if (dataString && typeof dataString === 'string') {
+                var data = JSON.parse(dataString);
+                for (var i = 0; i < data.length; i++) {
+                    this.add(data[i]);
+                }
+            }
         }
     };
     return Model;
