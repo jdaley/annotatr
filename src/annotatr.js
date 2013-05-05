@@ -4,7 +4,8 @@ annotatr = (function ($) {
     var annotatr = {};
 
     function Annotatr($container, options) {
-        this.model = new annotatr.Model(options.data);
+        this.undo = new annotatr.Undo();
+        this.model = new annotatr.Model(options.data, this.undo);
         this.surface = new annotatr.Surface($container, this.model, options.width, options.height);
         this.input = new annotatr.Input(this.model, this.surface);
 
@@ -24,6 +25,7 @@ annotatr = (function ($) {
         },
         addToolbar: function ($toolbar) {
             var model = this.model;
+            var undo = this.undo;
             $('[data-annotatr]', $toolbar).each(function () {
                 var $this = $(this);
                 var mode = $this.attr('data-annotatr');
@@ -31,6 +33,10 @@ annotatr = (function ($) {
                     if (model.mode === mode) {
                         model.mode = null;
                         model.repeatMode = false;
+                    } else if (mode === 'undo') {
+                        undo.undo();
+                    } else if (mode === 'redo') {
+                        undo.redo();
                     } else {
                         model.mode = mode;
                     }

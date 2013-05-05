@@ -9,8 +9,9 @@ annotatr.Model = (function (annotatr, $) {
         }
     }
 
-    function Model(data) {
+    function Model(data, undo) {
         this.data = data || [];
+        this.undo = undo;
         this.elements = [];
         this.elementsChanged = $.Callbacks();
         this.selected = [];
@@ -64,6 +65,9 @@ annotatr.Model = (function (annotatr, $) {
                 this.selected[this.selected.length - 1].setSelected(false);
                 this.selected.splice(this.selected.length - 1,1);
             }
+        },
+        getSelected: function () {
+            return this.selected.slice(0); // return a copy of the array
         },
         startEditing: function (element) {
             var found = false;

@@ -1,6 +1,10 @@
 annotatr.utils = (function () {
     'use strict';
 
+    function equal(v, w) {
+        return v.x === w.x && v.y === w.y;
+    }
+
     function subtract(v, w) {
         return {
             x: v.x - w.x,
@@ -34,6 +38,7 @@ annotatr.utils = (function () {
     }
 
     return {
+        equal: equal,
         subtract: subtract,
         distance: distance,
         distanceToLine: distanceToLine

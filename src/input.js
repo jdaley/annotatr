@@ -18,7 +18,38 @@ annotatr.Input = (function (annotatr, $) {
                 this.selected[i].setPosition(annotatr.utils.subtract(p, this.offset[i]));
             }
         },
-        up: function () { },
+        up: function () {
+            var newPos = [];
+            var difference = false;
+            for (var i = 0; i < this.selected.length; i++) {
+                newPos.push(this.selected[i].getPosition());
+
+                if (!annotatr.utils.equal(this.originalPos[i], newPos[i])) {
+                    difference = true;
+                }
+            }
+
+            if (!difference) {
+                return;
+            }
+
+            this.model.undo.push({
+                elements: this.selected,
+                oldPositions: this.originalPos,
+                newPositions: newPos,
+                undo: function () {
+                    this.setPositions(this.oldPositions);
+                },
+                redo: function () {
+                    this.setPositions(this.newPositions);
+                },
+                setPositions: function (positions) {
+                    for (var i = 0; i < this.elements.length; i++) {
+                        this.elements[i].setPosition(positions[i]);
+                    }
+                }
+            });
+        },
         cancel: function () {
             this.selected.setPosition(this.originalPos);
         }
@@ -198,7 +229,7 @@ annotatr.Input = (function (annotatr, $) {
                 ! e.ctrlKey) {
                 var hitPoint = hit.getHitPoint(p);
                 if (hitPoint === null) {
-                    this.mouseOperation = new MouseMoveOperation(this.model, this.model.selected, p);
+                    this.mouseOperation = new MouseMoveOperation(this.model, this.model.getSelected(), p);
                 } else {
                     this.mouseOperation = new MouseResizeOperation(this.model, hit, hitPoint, p, false);
                 }
@@ -209,7 +240,7 @@ annotatr.Input = (function (annotatr, $) {
                     this.model.selectNone();
                     this.model.select(hit);
                 }
-                this.mouseOperation = new MouseMoveOperation(this.model, this.model.selected, p);
+                this.mouseOperation = new MouseMoveOperation(this.model, this.model.getSelected(), p);
             }
         },
         mouseUp: function (e) {
