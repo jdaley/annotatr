@@ -12,7 +12,7 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
         return paper;
     }
 
-    function drawSelect(element, paper) {
+    function drawSelect(element, paper, model) {
         var objs = {};
 
         if (element.data.type !== 'line') {
@@ -29,11 +29,12 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
                 points[i].x - 3, points[i].y - 3, 6, 6, 1);
             objs.points.push(rect);
         }
-        // Draw the toolbar for the selected shape
+        // Draw the formatbar for the selected shape - color it according to the currently selected color
             var rect = paper.rect(
                 points[0].x + 2, points[0].y - 13, 10, 10, 1);
+            rect.attr('fill', model.selectedColor);
             element.formatBar = rect;
-        // Set up the "isHit()" code for the toolbar
+        // Set up the "isHit()" code for the formatBar
         element.formatBar.isHit = function (p) {
             var formatBarRec = element.formatBar[0]; //Rect
             return p.x >= formatBarRec.x.baseVal.value &&
@@ -130,11 +131,15 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
             // Cycle through the elements to see if any have been hit
             for (var i = this.model.elements.length - 1; i >= 0; i--) {
                 var element = this.model.elements[i];
+
+                // If the format bar is clicked, color the element the return it
                 if (element.selected && element.formatBar.isHit(p)){
-                    element.data.stroke = '#FF00FF';
+                    element.data.stroke = this.model.selectedColor || '#000000'; 
                     element.fireChanged();
                     return element;
                 }
+
+                // If just the element it clicked, return it
                 if (element.isHit(p)) {
                     return element;
                 } 
@@ -176,7 +181,7 @@ annotatr.Surface = (function (annotatr, $, Raphael) {
                 var renderObjs = annotatr.shapes[element.data.type].draw(
                     element, this.$container, this.renderPaper);
 
-                var selectObjs = drawSelect(element, this.selectPaper);
+                var selectObjs = drawSelect(element, this.selectPaper, this.model);
 
                 var self = this;
                 var updateHandler = function (element) {

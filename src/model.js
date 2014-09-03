@@ -15,6 +15,7 @@ annotatr.Model = (function (annotatr, $) {
         this.elements = [];
         this.elementsChanged = $.Callbacks();
         this.selected = [];
+        this.selectedColor = '#000000';
         this.editing = [];
 
         for (var i = 0; i < this.data.length; i++) {

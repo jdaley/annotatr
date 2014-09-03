@@ -65,12 +65,18 @@ annotatr = (function ($) {
         },
         addFormatbar: function ($formatbar, surface) {
             var model = this.model;
+            self.surface = surface;
+            
             $('#strokeColor').colorPicker( {
             onColorChange : function(id, strokeColor) {
+                // Set the model selected Color - Used by the format bar
+                model.selectedColor = strokeColor;
                 for (var i = 0; i < model.selected.length; i++) {
                                 model.selected[i].setStroke(strokeColor);
                 }
+                self.surface.update();
             }});
+
             $('[data-annotatr]', $formatbar).each(function () {
                 var $this = $(this);
                 var mode = $this.attr('data-annotatr');
